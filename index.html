@@ -3,65 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>서비스 롤플레잉 훈련</title>
+  <title>비즈니스 라이트 Greeting 훈련</title>
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <div class="header-icon">✈️</div>
-      <h1 class="header-title">서비스 롤플레잉 훈련</h1>
-      <p class="header-desc">실제 기내 상황을 선택하고, 승객에게 어떻게 응대할지 연습해보세요.</p>
+      <div class="header-badge">JJEMS</div>
+      <h1 class="header-title">비즈니스 라이트 Greeting 훈련</h1>
+      <p class="header-desc">객실사무장으로서 탑승한 JJEMS 승객에게<br>자연스럽고 차별화된 인사를 연습해보세요.</p>
     </header>
 
     <main class="main">
       <section class="select-section card">
-        <label for="situationSelect" class="section-label">훈련할 기내 상황 선택</label>
+        <label for="passengerSelect" class="section-label">탑승한 JJEMS 선택</label>
         <div class="select-wrapper">
-          <select id="situationSelect">
-            <option value="">-- 상황을 선택하세요 --</option>
-            <option value="1">1. 보딩 시 수하물 및 좌석 중복 분쟁</option>
-            <option value="2">2. 비행 공포증 호소 승객 케어</option>
-            <option value="3">3. 면세품 품절 안내 상황</option>
-            <option value="4">4. 분실물 관련 하기 후 기내 재접근 상황</option>
-            <option value="5">5. 외부 음식 취식 및 데움 요청</option>
-            <option value="6">6. 에어카페 유료 품목 및 서비스 오류 안내</option>
-            <option value="7">7. 우는 아이 승객에 대한 불만 승객 발생</option>
-            <option value="8">8. 화장실 대기 및 청결 불만</option>
-            <option value="9">9. 기내 온도 불만 및 유료 담요 안내</option>
-            <option value="10">10. 보딩 시 날짜/편명 및 탑승권 확인</option>
-            <option value="11">11. 에어카페 상품 주문 및 결제 응대</option>
-            <option value="12">12. 기내 면세품 주문 및 결제 응대</option>
-            <option value="13">13. 난기류 발생 시 좌석벨트 착용 안내</option>
-            <option value="14">14. 운항 스케줄 확인 및 단순 안심 케어</option>
+          <select id="passengerSelect">
+            <option value="">-- 탑승 승객을 선택하세요 --</option>
+            <option value="1">VIP · 이재명 대통령</option>
+            <option value="2">VVIP · 삼성 계열사 부회장</option>
+            <option value="3">VIP · 주한 미국 대사</option>
+            <option value="4">JJEMS Gold · 월 4회 이상 탑승 상용고객</option>
+            <option value="5">VIP · 국가대표 축구선수단</option>
+            <option value="6">JJEMS Silver · 첫 비즈니스 라이트 업그레이드 고객</option>
+            <option value="7">VVIP · 유명 방송인 (방송 중 언급 가능)</option>
+            <option value="8">JJEMS Gold · 고령 단골 어르신</option>
           </select>
         </div>
       </section>
 
-      <section id="scenarioSection" class="scenario-section card hidden">
-        <div class="scenario-badge">기내 상황</div>
-        <p id="scenarioTitle" class="scenario-title"></p>
-        <div class="passenger-bubble">
-          <span class="passenger-icon">🧑‍✈️ 승객</span>
-          <p id="scenarioText" class="scenario-text"></p>
+      <section id="passengerSection" class="passenger-section hidden">
+        <div class="profile-card card">
+          <div class="profile-top">
+            <div id="gradeTag" class="grade-tag"></div>
+            <div class="profile-avatar" id="profileAvatar"></div>
+          </div>
+          <div class="profile-info">
+            <p id="passengerName" class="passenger-name"></p>
+            <p id="passengerSub" class="passenger-sub"></p>
+          </div>
+          <div class="profile-details" id="profileDetails"></div>
         </div>
-        <div class="hint-box">
-          <span class="hint-label">💡 응대 포인트</span>
-          <p id="scenarioHint" class="hint-text"></p>
+
+        <div class="situation-card card">
+          <div class="situation-badge">탑승 상황</div>
+          <p id="situationText" class="situation-text"></p>
+          <div class="hint-box">
+            <span class="hint-label">✨ Greeting 포인트</span>
+            <ul id="hintList" class="hint-list"></ul>
+          </div>
         </div>
       </section>
 
       <section id="actionSection" class="action-section hidden">
         <div class="status-bar">
-          <span class="status-label">상태</span>
+          <span class="status-label">훈련 상태</span>
           <span id="statusBadge" class="status-badge waiting">대기 중</span>
         </div>
 
-        <div id="recordingArea" class="recording-area card">
-          <p class="recording-guide">마이크 버튼을 눌러 응대 내용을 녹음하세요</p>
+        <div class="recording-area card">
+          <p class="recording-guide">마이크 버튼을 눌러 Greeting을 녹음하세요</p>
           <button id="recordBtn" class="btn btn-record">
             <span class="btn-icon">🎤</span>
-            <span id="recordBtnText">답변 녹음하기</span>
+            <span id="recordBtnText">Greeting 녹음하기</span>
           </button>
           <div id="recordingIndicator" class="recording-indicator hidden">
             <span class="dot"></span>
@@ -74,26 +78,27 @@
         <div id="resultArea" class="result-area card hidden">
           <div class="result-header">
             <span class="result-icon">📋</span>
-            <span class="result-title">응대 평가 결과</span>
+            <span class="result-title">Greeting 평가 결과</span>
           </div>
           <div id="resultContent" class="result-content"></div>
+          <div id="exampleGreeting" class="example-greeting"></div>
         </div>
 
         <div class="action-buttons">
           <button id="submitBtn" class="btn btn-submit" disabled>
             <span class="btn-icon">📤</span>
-            응대 완료
+            Greeting 완료
           </button>
           <button id="resetBtn" class="btn btn-reset">
             <span class="btn-icon">🔄</span>
-            새로운 상황으로 다시 시작
+            다른 승객으로 다시 시작
           </button>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>제주항공 객실승무원 서비스 훈련 시스템</p>
+      <p>제주항공 객실사무장 · JJEMS 비즈니스 라이트 Greeting 훈련 시스템</p>
     </footer>
   </div>
 
