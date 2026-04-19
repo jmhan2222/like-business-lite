@@ -367,10 +367,6 @@ submitBtn.addEventListener('click', async () => {
   if (!greeting) return;
 
   const apiKey = localStorage.getItem('anthropic_api_key');
-  if (!apiKey) {
-    showError('API 키가 설정되지 않았습니다. 상단 "AI 응답 설정"에서 API 키를 입력해주세요.');
-    return;
-  }
 
   submitBtn.disabled = true;
   recordBtn.disabled = true;
@@ -383,7 +379,9 @@ submitBtn.addEventListener('click', async () => {
   setStatus('loading', '응답 대기 중');
 
   try {
-    const result = await callClaudeAPI(currentPassenger, greeting);
+    const result = apiKey
+      ? await callClaudeAPI(currentPassenger, greeting)
+      : await getDemoResponse(currentPassenger, greeting);
     loadingResponse.classList.add('hidden');
 
     prAvatar.textContent = currentPassenger.avatar;
@@ -557,6 +555,167 @@ function parseJSON(text) {
   }
 
   throw new Error('AI 응답을 처리할 수 없었습니다. 다시 시도해주세요.');
+}
+
+// ─── Demo Mode (API 키 없을 때) ────────────────────────────────────────────────
+const demoData = {
+  1: {
+    responses: [
+      '수고해요. 잘 부탁드립니다.',
+      '네, 감사합니다. 편하게 지낼게요.',
+      '고마워요, 잘 부탁해요.'
+    ],
+    goodResponses: [
+      '감사합니다. 사무장님 덕분에 마음이 편해지네요. 잘 부탁드립니다.',
+      '네, 정말 감사합니다. 바쁜 일정인데 이렇게 따뜻하게 맞아주시니 감사하네요.',
+      '고마워요. 오늘 비행도 잘 부탁드립니다.'
+    ]
+  },
+  2: {
+    responses: [
+      '어, 그래요. 생수 한 병만 가져다줘요.',
+      '알겠습니다. 도착하면 연락해요.',
+      '수고요. 조용히 있을 테니 신경 쓰지 않아도 됩니다.'
+    ],
+    goodResponses: [
+      '오, 기억해줬군요. 역시 제주항공이에요. 생수 바로 부탁드립니다.',
+      '감사합니다. 항상 이렇게 챙겨줘서 제주항공만 타게 되는 것 같아요.',
+      '잘 부탁드립니다. 편한 비행이 될 것 같네요.'
+    ]
+  },
+  3: {
+    responses: [
+      'Thank you, I appreciate the warm welcome.',
+      'Thank you very much. I look forward to a pleasant flight.',
+      'Thank you. Please let me know if you need anything from me as well.'
+    ],
+    goodResponses: [
+      'Thank you so much. I really appreciate the bilingual greeting — it means a lot. I look forward to a comfortable flight.',
+      'How thoughtful, thank you. It\'s always a pleasure flying with Jeju Air.',
+      'Thank you, Ambassador treatment noted! I\'ll be sure to reach out if I need anything.'
+    ]
+  },
+  4: {
+    responses: [
+      '아, 네. 감사해요.',
+      '고맙습니다. 잘 부탁드려요.',
+      '처음이라 좀 설레네요, 잘 부탁드립니다.'
+    ],
+    goodResponses: [
+      '와, 이름까지 기억해주시다니! 덕분에 첫 비즈니스가 더 특별하게 느껴져요.',
+      '감사합니다! 148번 탔는데 이렇게 챙겨주시니 더 자주 타고 싶어지네요.',
+      '정말 감사해요. 비즈니스 라이트 첫 탑승인데 기분이 너무 좋네요!'
+    ]
+  },
+  5: {
+    responses: [
+      '감사합니다! 편하게 좀 쉬어야겠어요.',
+      '고맙습니다. 다들 힘들었는데 이런 따뜻한 인사가 힘이 되네요.',
+      '감사합니다. 이제 좀 쉬겠습니다!'
+    ],
+    goodResponses: [
+      '와, 선수단을 이렇게 챙겨주시다니 정말 감사합니다! 원정 피로가 싹 풀리는 것 같아요.',
+      '감사합니다! 이런 인사 덕분에 다음 경기도 힘이 날 것 같아요. 잘 부탁드립니다.',
+      '고맙습니다. 선수들도 모두 기뻐할 것 같아요. 음료 부탁드립니다!'
+    ]
+  },
+  6: {
+    responses: [
+      '감사합니다! 너무 설레요.',
+      '고마워요, 생일에 이런 인사 받으니 더 기분 좋네요!',
+      '와, 감사합니다. 처음이라 어떻게 해야 할지 모르겠어요!'
+    ],
+    goodResponses: [
+      '어머, 생일까지 알아주셨어요? 정말 감동이에요! 이 비행 평생 기억할 것 같아요.',
+      '와, 첫 비즈니스에 생일 축하까지! 최고의 선물이에요, 감사합니다!',
+      '너무너무 감사해요! 오늘 비행이 정말 특별해질 것 같아요!'
+    ]
+  },
+  7: {
+    responses: [
+      '네, 감사해요.',
+      '고마워요. 조용히 있을게요.',
+      '감사합니다. 잘 부탁드려요.'
+    ],
+    goodResponses: [
+      '감사해요. 조용하게 신경 써주셔서 마음이 편해요. 잘 부탁드릴게요.',
+      '고마워요. 이렇게 자연스럽게 대해주시니 오히려 편하네요.',
+      '감사합니다. 덕분에 편하게 쉴 수 있을 것 같아요.'
+    ]
+  },
+  8: {
+    responses: [
+      '아이고, 고마워요.',
+      '네, 감사합니다. 잘 앉았어요.',
+      '고마워요. 오래 탔는데 항상 이렇게 잘해줘서 좋아요.'
+    ],
+    goodResponses: [
+      '아이고, 이렇게 정성껏 인사해주니 너무 고맙네요. 10년 동안 제주항공만 타는 이유가 있어요.',
+      '고마워요 사무장님. 천천히 말해줘서 잘 들렸어요. 잘 부탁해요.',
+      '어머, 이렇게 세심하게 챙겨주다니. 항상 고맙습니다!'
+    ]
+  }
+};
+
+function scoreDemoGreeting(greeting) {
+  const g = greeting;
+  let score = 60;
+  const strengths = [];
+  let improvement = null;
+
+  // 호칭 확인
+  const titleWords = ['대통령님','부회장님','대사님','ambassador','고객님','선수단','어머니','씨'];
+  if (titleWords.some(w => g.toLowerCase().includes(w.toLowerCase()))) {
+    score += 10; strengths.push('적절한 직함/호칭을 사용했습니다.');
+  } else {
+    improvement = '승객의 직함이나 호칭을 정확히 사용하면 더 격식 있는 인사가 됩니다.';
+  }
+
+  // 환영 표현
+  if (g.includes('환영') || g.includes('반갑') || g.includes('welcome')) {
+    score += 8; strengths.push('따뜻한 환영 표현이 포함되었습니다.');
+  }
+
+  // 자기소개
+  if (g.includes('사무장') || g.includes('저는') || g.includes('담당')) {
+    score += 7; strengths.push('자기소개로 신뢰감을 높였습니다.');
+  }
+
+  // 서비스 의지
+  if (g.includes('최선') || g.includes('도움') || g.includes('편안') || g.includes('준비')) {
+    score += 8; strengths.push('서비스 의지를 명확하게 전달했습니다.');
+  }
+
+  // 개인화
+  if (g.includes('생일') || g.includes('출장') || g.includes('원정') || g.includes('업그레이드') || g.includes('단골') || g.includes('이번에도')) {
+    score += 7; strengths.push('승객 상황을 반영한 개인화된 인사였습니다.');
+  }
+
+  score = Math.min(100, score);
+
+  if (strengths.length === 0) strengths.push('인사말을 전달했습니다.');
+  if (!improvement && score < 90) improvement = '이름이나 상황을 언급해 더 개인화된 인사를 시도해보세요.';
+
+  const feedback =
+    score >= 90 ? '매우 훌륭한 Greeting입니다. JJEMS 서비스 기준을 충분히 충족했습니다.' :
+    score >= 75 ? '좋은 Greeting이었습니다. 몇 가지를 보완하면 더욱 완성도 높아집니다.' :
+    score >= 60 ? '기본적인 인사는 갖췄습니다. 호칭과 개인화를 더 신경 써보세요.' :
+                  '기초부터 다시 연습해보세요. Greeting 포인트를 참고하세요.';
+
+  return { score, feedback, strengths, improvement };
+}
+
+async function getDemoResponse(passenger, greeting) {
+  await new Promise(r => setTimeout(r, 1200));
+
+  const data = demoData[passengerSelect.value];
+  const scoring = scoreDemoGreeting(greeting);
+
+  const isGood = scoring.score >= 78;
+  const pool = isGood ? data.goodResponses : data.responses;
+  const passengerResponse = pool[Math.floor(Math.random() * pool.length)];
+
+  return { passengerResponse, ...scoring };
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
