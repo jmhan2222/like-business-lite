@@ -9,12 +9,37 @@
 <body>
   <div class="container">
     <header class="header">
-      <div class="header-badge">JJEMS</div>
+      <div class="header-badge">✈ JEJU AIR · JJEMS</div>
       <h1 class="header-title">비즈니스 라이트 Greeting 훈련</h1>
       <p class="header-desc">객실사무장으로서 탑승한 JJEMS 승객에게<br>자연스럽고 차별화된 인사를 연습해보세요.</p>
     </header>
 
+    <!-- API 설정 -->
+    <section class="api-setup card" id="apiSetup">
+      <div class="api-setup-header" id="apiSetupToggle">
+        <div class="api-setup-left">
+          <span class="api-icon">🔑</span>
+          <span class="api-title">AI 응답 설정</span>
+        </div>
+        <div class="api-setup-right">
+          <span id="apiStatusDot" class="api-dot disconnected"></span>
+          <span id="apiStatusText" class="api-status-text">미연결</span>
+          <span id="apiChevron" class="api-chevron">▼</span>
+        </div>
+      </div>
+      <div id="apiSetupBody" class="api-setup-body hidden">
+        <p class="api-desc">AI 승객 응답을 받으려면 Anthropic API 키가 필요합니다. 키는 브라우저에만 저장됩니다.</p>
+        <div class="api-input-row">
+          <input type="password" id="apiKeyInput" class="api-input" placeholder="sk-ant-..." autocomplete="off" />
+          <button id="saveApiKeyBtn" class="btn btn-api">저장</button>
+          <button id="clearApiKeyBtn" class="btn btn-api-clear hidden">삭제</button>
+        </div>
+        <p id="apiMsg" class="api-msg hidden"></p>
+      </div>
+    </section>
+
     <main class="main">
+      <!-- 승객 선택 -->
       <section class="select-section card">
         <label for="passengerSelect" class="section-label">탑승한 JJEMS 선택</label>
         <div class="select-wrapper">
@@ -26,22 +51,21 @@
             <option value="4">JJEMS Gold · 월 4회 이상 탑승 상용고객</option>
             <option value="5">VIP · 국가대표 축구선수단</option>
             <option value="6">JJEMS Silver · 첫 비즈니스 라이트 업그레이드 고객</option>
-            <option value="7">VVIP · 유명 방송인 (방송 중 언급 가능)</option>
+            <option value="7">VVIP · 유명 방송인</option>
             <option value="8">JJEMS Gold · 고령 단골 어르신</option>
           </select>
         </div>
       </section>
 
+      <!-- 승객 프로필 -->
       <section id="passengerSection" class="passenger-section hidden">
         <div class="profile-card card">
           <div class="profile-top">
             <div id="gradeTag" class="grade-tag"></div>
             <div class="profile-avatar" id="profileAvatar"></div>
           </div>
-          <div class="profile-info">
-            <p id="passengerName" class="passenger-name"></p>
-            <p id="passengerSub" class="passenger-sub"></p>
-          </div>
+          <p id="passengerName" class="passenger-name"></p>
+          <p id="passengerSub" class="passenger-sub"></p>
           <div class="profile-details" id="profileDetails"></div>
         </div>
 
@@ -55,44 +79,113 @@
         </div>
       </section>
 
+      <!-- 훈련 섹션 -->
       <section id="actionSection" class="action-section hidden">
         <div class="status-bar">
           <span class="status-label">훈련 상태</span>
           <span id="statusBadge" class="status-badge waiting">대기 중</span>
         </div>
 
+        <!-- 녹음 영역 -->
         <div class="recording-area card">
-          <p class="recording-guide">마이크 버튼을 눌러 Greeting을 녹음하세요</p>
-          <button id="recordBtn" class="btn btn-record">
-            <span class="btn-icon">🎤</span>
-            <span id="recordBtnText">Greeting 녹음하기</span>
-          </button>
+          <p id="recordingGuide" class="recording-guide">마이크 버튼을 눌러 Greeting을 시작하세요</p>
+
+          <div class="record-btn-wrap">
+            <button id="recordBtn" class="btn btn-record">
+              <span class="btn-icon">🎤</span>
+              <span id="recordBtnText">Greeting 녹음하기</span>
+            </button>
+          </div>
+
+          <!-- 녹음 중 애니메이션 -->
           <div id="recordingIndicator" class="recording-indicator hidden">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             <span class="recording-text">녹음 중...</span>
+          </div>
+
+          <!-- 실시간 인식 텍스트 -->
+          <div id="liveTranscriptBox" class="live-transcript-box hidden">
+            <div class="live-transcript-label">🎙 인식 중</div>
+            <p id="liveTranscriptText" class="live-transcript-text"></p>
+          </div>
+
+          <!-- 음성인식 미지원 시 텍스트 입력 -->
+          <div id="fallbackInput" class="fallback-input hidden">
+            <label class="fallback-label">이 브라우저는 음성인식을 지원하지 않습니다. 직접 입력하세요.</label>
+            <textarea id="fallbackText" class="fallback-textarea" placeholder="인사말을 직접 입력하세요..."></textarea>
           </div>
         </div>
 
+        <!-- 내 인사말 결과 -->
+        <div id="transcriptResult" class="transcript-result card hidden">
+          <div class="transcript-header">
+            <span class="t-icon">👨‍✈️</span>
+            <span class="t-title">객실사무장 인사말</span>
+          </div>
+          <p id="transcriptFinal" class="transcript-final"></p>
+          <button id="editTranscriptBtn" class="btn-text-link">✏️ 수정하기</button>
+          <textarea id="transcriptEditArea" class="transcript-edit hidden" rows="3"></textarea>
+          <button id="confirmEditBtn" class="btn btn-api hidden" style="margin-top:8px">수정 완료</button>
+        </div>
+
+        <!-- 승객 응답 로딩 -->
+        <div id="loadingResponse" class="loading-response hidden">
+          <span class="loading-avatar" id="loadingAvatar"></span>
+          <div class="loading-dots">
+            <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+          </div>
+          <span class="loading-text">승객이 응답하는 중...</span>
+        </div>
+
+        <!-- 승객 응답 말풍선 -->
+        <div id="passengerResponseCard" class="passenger-response-card card hidden">
+          <div class="pr-header">
+            <span id="prAvatar" class="pr-avatar"></span>
+            <div class="pr-name-wrap">
+              <span id="prName" class="pr-name"></span>
+              <span class="pr-tag">승객 응답</span>
+            </div>
+          </div>
+          <div class="pr-bubble">
+            <p id="passengerResponseText" class="pr-text"></p>
+          </div>
+        </div>
+
+        <!-- 평가 결과 -->
         <div id="resultArea" class="result-area card hidden">
           <div class="result-header">
             <span class="result-icon">📋</span>
-            <span class="result-title">Greeting 평가 결과</span>
+            <span class="result-title">Greeting 평가</span>
           </div>
-          <div id="resultContent" class="result-content"></div>
-          <div id="exampleGreeting" class="example-greeting"></div>
+          <div class="score-row">
+            <span class="score-label">Greeting 점수</span>
+            <span id="scoreValue" class="score-value"></span>
+            <div id="scoreBar" class="score-bar"><div id="scoreBarFill" class="score-bar-fill"></div></div>
+          </div>
+          <p id="feedbackText" class="feedback-text"></p>
+          <div id="strengthsList" class="strengths-list"></div>
+          <div id="improvementBox" class="improvement-box hidden">
+            <span class="improvement-label">💡 개선 포인트</span>
+            <p id="improvementText" class="improvement-text"></p>
+          </div>
         </div>
 
+        <!-- 버튼 -->
         <div class="action-buttons">
           <button id="submitBtn" class="btn btn-submit" disabled>
             <span class="btn-icon">📤</span>
-            Greeting 완료
+            응대 완료 (제출)
           </button>
           <button id="resetBtn" class="btn btn-reset">
             <span class="btn-icon">🔄</span>
-            다른 승객으로 다시 시작
+            다시 시작
           </button>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div id="errorBox" class="error-box hidden">
+          <span class="error-icon">⚠️</span>
+          <p id="errorText" class="error-text"></p>
         </div>
       </section>
     </main>
