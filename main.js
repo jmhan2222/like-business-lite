@@ -142,10 +142,11 @@ const passengerResponseText  = $('passengerResponseText');
 const resultArea       = $('resultArea');
 const scoreChip        = $('scoreChip');
 const scoreBarFill     = $('scoreBarFill');
-const feedbackText     = $('feedbackText');
-const strengthsList    = $('strengthsList');
-const improvementBox   = $('improvementBox');
-const improvementText  = $('improvementText');
+const feedbackText        = $('feedbackText');
+const strengthsList       = $('strengthsList');
+const improvementBox      = $('improvementBox');
+const improvementText     = $('improvementText');
+const regulationCheckList = $('regulationCheckList');
 const conversationFeedback = $('conversationFeedback');
 const cfHintList           = $('cfHintList');
 const cfExpressionList     = $('cfExpressionList');
@@ -340,7 +341,7 @@ function stopRecording() {
   recordingIndicator.classList.add('hidden');
   liveTranscriptBox.classList.add('hidden');
 
-  const text = hasSpeechAPI ? finalTranscript.trim() : fallbackText.value.trim();
+  const text = hasSpeechAPI ? (finalTranscript || interimTranscript).trim() : fallbackText.value.trim();
 
   if (!text) {
     setStatus('waiting', '대기 중');
@@ -443,16 +444,31 @@ submitBtn.addEventListener('click', async () => {
 
     // 잘한 점
     strengthsList.innerHTML = (result.strengths || []).map(s =>
-      `<div class="strength-item">✅ ${s}</div>`
-    ).join('');
+      `<div class="ls-item ls-good-item">${s}</div>`
+    ).join('') || '<div class="ls-item ls-empty">계속 연습해보아요!</div>';
 
-    // 개선 포인트
+    // 개선 포인트 (주요 1개)
     if (result.improvement) {
       improvementText.textContent = result.improvement;
       improvementBox.classList.remove('hidden');
     } else {
       improvementBox.classList.add('hidden');
     }
+
+    // JJEMS 규정 체크리스트 (API 결과에 없을 경우 greeting 텍스트로 추론)
+    const greeting = transcriptFinal.textContent.trim();
+    const gl = greeting.toLowerCase();
+    const flightOk = result.hasFlightInfo ?? /분|시간|소요|편/.test(gl);
+    const weatherOk = result.hasWeatherInfo ?? /날씨|기온|도|맑|흐|비|눈/.test(gl);
+    const titleOk = result.hasTitleCorrect ?? true;
+
+    const regChecks = [];
+    if (!flightOk) regChecks.push('비행 소요시간 안내 포함하기');
+    if (!weatherOk) regChecks.push('목적지 날씨 정보 안내하기');
+    if (!titleOk) regChecks.push('정확한 호칭 사용하기');
+    regulationCheckList.innerHTML = regChecks.map(c =>
+      `<div class="ls-item ls-check-item">${c}</div>`
+    ).join('');
 
     resultArea.classList.remove('hidden');
     setStatus('done', '평가 완료');
@@ -504,6 +520,7 @@ function resetTrainingState() {
   passengerResponseCard.classList.add('hidden');
   conversationFeedback.classList.add('hidden');
   resultArea.classList.add('hidden');
+  if (regulationCheckList) regulationCheckList.innerHTML = '';
 
   const ttsBtn = document.getElementById('ttsBtn');
   if (ttsBtn) ttsBtn.classList.add('hidden');
@@ -551,16 +568,21 @@ ${passenger.persona}
 - JJEMS 서비스 기준 부합 여부
 - 표현의 구체성과 적절성
 
+승객 반응: JJEMS 인사는 절대 호칭 오류를 지적하거나 서비스 평가를 하지 않습니다. 인사 내용에 따라 자연스럽게 반응하되 온도 차이만 표현합니다.
+
 반드시 아래 JSON 형식으로만 응답하십시오 (다른 텍스트 없음):
 {
-  "passengerResponse": "승객의 자연스러운 반응 (1~3문장)",
+  "passengerResponse": "승객의 자연스러운 반응 (1~2문장, 호칭 지적 없음)",
   "score": 0~100 사이 정수,
-  "instructorComment": "박지현 교관으로서의 따뜻하고 전문적인 피드백 (사무장님으로 호칭, 2~3문장)",
+  "instructorComment": "박지현 교관으로서의 따뜻하고 전문적인 학습 피드백 (사무장님으로 호칭, 2~3문장)",
   "expressionFeedback": [
     { "phrase": "사무장이 실제 사용한 특정 표현", "comment": "이 표현에 대한 교관의 짧은 코멘트", "good": true 또는 false }
   ],
   "strengths": ["잘한 점 1", "잘한 점 2"],
-  "improvement": "개선할 점 한 문장 또는 null"
+  "improvement": "개선할 점 한 문장 또는 null",
+  "hasFlightInfo": true 또는 false (비행 소요시간 언급 여부),
+  "hasWeatherInfo": true 또는 false (날씨 정보 언급 여부),
+  "hasTitleCorrect": true 또는 false (정확한 직함 사용 여부)
 }`;
 }
 
@@ -605,105 +627,102 @@ function parseJSON(text) {
 }
 
 // ─── Demo Mode ────────────────────────────────────────────────────────────────
+// 승객 반응: JJEMS 인사는 호칭 오류를 지적하지 않음 — 자연스럽게 반응
+// 점수에 따라 반응 온도가 달라짐 (brief → ok → good → excellent)
 const demoData = {
   1: { // VIP · 이재명 대통령
     correctTitles: ['대통령님'],
-    wrongTitleReaction: [
-      '(잠시 멈칫하며) 저는 대통령입니다. 호칭을 다시 확인해주시겠어요?',
-      '(경호원과 눈빛을 교환하며) 호칭이 좀 어색하네요.',
+    briefReaction: [
+      '(간단히 고개를 끄덕이며) 네, 감사합니다.',
+      '(조용히) 알겠습니다.',
     ],
-    tooShortReaction: ['(가볍게 고개를 끄덕이며) 네.', '알겠습니다.'],
-    noWeatherReaction: [
-      '(살짝 아쉬운 듯) 감사합니다. 혹시 목적지 날씨나 비행시간도 알 수 있을까요?',
+    okReaction: [
+      '수고해요. 잘 부탁드립니다.',
+      '고맙습니다. 편안하게 가겠습니다.',
     ],
-    okReaction: ['수고해요. 잘 부탁드립니다.', '네, 감사합니다. 출발 준비해주세요.'],
     goodReaction: [
-      '감사합니다. 비행 정보까지 챙겨주시니 편하네요. 잘 부탁드립니다.',
+      '감사합니다. 비행 정보까지 챙겨주시니 마음이 놓이네요. 잘 부탁드립니다.',
       '고맙습니다. 날씨 정보도 알려주셔서 준비가 되는 것 같아요.',
     ],
     excellentReaction: [
-      '정말 감사합니다. 바쁜 일정 중에도 날씨와 비행 정보까지 세심하게 안내해주시니 마음이 편해지네요. 잘 부탁드립니다.',
-      '감사합니다, 사무장님. 비행 정보와 날씨까지 챙겨주시는 덕분에 한결 편안한 마음으로 탑승하게 됩니다.',
+      '정말 감사합니다. 바쁜 일정 중에도 비행 정보와 날씨까지 세심하게 안내해주시니 마음이 편해지네요. 잘 부탁드립니다.',
+      '감사합니다, 사무장님. 필요한 정보를 자연스럽게 전달해주시니 한결 편안한 마음으로 탑승하게 됩니다.',
     ],
   },
   2: { // CIP · 이재용 삼성전자 대표
     correctTitles: ['이재용', '대표님', '대표'],
-    wrongTitleReaction: [
-      '(무표정으로) 저는 이재용입니다. 호칭 확인 부탁드려요.',
-      '(짧게) 호칭이 다른 것 같은데요.',
+    briefReaction: [
+      '(노트북을 보며) 네.',
+      '(짧게) 알겠어요.',
     ],
-    tooShortReaction: ['(노트북을 보며) 네.', '알겠어요.'],
-    noWeatherReaction: [
-      '(간결하게) 감사합니다. 서울 날씨는 어떤가요?',
+    okReaction: [
+      '조용히 있을 테니 필요하면 부르겠습니다.',
+      '알겠습니다. 수고하세요.',
     ],
-    okReaction: ['수고요. 조용히 있을 테니 필요하면 부르겠습니다.', '알겠습니다.'],
     goodReaction: [
       '잘 부탁드립니다. 비행 정보까지 챙겨주시니 편하네요.',
-      '날씨 정보도 감사합니다. 편안한 비행 되길 바랍니다.',
+      '날씨 정보도 감사합니다. 편안한 비행이 되겠네요.',
     ],
     excellentReaction: [
       '감사합니다. 비행시간과 날씨까지 바로 안내해주시니 역시 제주항공입니다. 잘 부탁드립니다.',
-      '깔끔하고 필요한 정보를 딱 맞게 전달해주셨어요. 편안한 비행이 될 것 같습니다.',
+      '필요한 정보를 딱 맞게 전달해주셨어요. 편안한 비행이 될 것 같습니다.',
     ],
   },
   3: { // AIP · 채형석 애경그룹 회장
     correctTitles: ['채형석', '회장님', '회장'],
-    wrongTitleReaction: [
-      '(잠시 멈추며) 저는 채형석 회장입니다. 호칭을 다시 한번 확인해주시겠어요?',
-      '(조용히) 호칭이 좀 어색하네요.',
+    briefReaction: [
+      '(고개를 끄덕이며) 네, 감사합니다.',
+      '알겠어요.',
     ],
-    tooShortReaction: ['(고개를 끄덕이며) 네, 감사합니다.', '알겠어요.'],
-    noWeatherReaction: [
-      '(잠깐) 혹시 목적지 날씨도 알 수 있을까요?',
+    okReaction: [
+      '수고하십니다. 잘 부탁드립니다.',
+      '감사합니다. 편안하게 있겠습니다.',
     ],
-    okReaction: ['수고하십니다. 잘 부탁드립니다.', '감사합니다. 편안하게 있겠습니다.'],
     goodReaction: [
       '감사합니다. 비행 정보도 알려주시니 든든하네요. 잘 부탁드립니다.',
-      '고맙습니다. 날씨 정보까지 챙겨주시는 세심함이 좋습니다.',
+      '고맙습니다. 날씨 정보까지 세심하게 챙겨주시는군요.',
     ],
     excellentReaction: [
-      '잘 알겠습니다. 비행시간과 날씨까지 챙겨주시니 역시 제주항공 서비스네요. 잘 부탁드립니다.',
-      '감사합니다, 사무장님. 정확한 호칭에 필요한 정보까지 — 훌륭한 응대입니다. 편안한 비행 되길 바랍니다.',
+      '잘 알겠습니다. 비행시간과 날씨까지 챙겨주시니 역시 제주항공이에요. 잘 부탁드립니다.',
+      '감사합니다, 사무장님. 필요한 정보를 자연스럽게 전달해주셨어요. 편안한 비행 되길 바랍니다.',
     ],
   },
   4: { // AAIP · 김이배 제주항공 대표이사
     correctTitles: ['김이배', '대표님', '대표'],
-    wrongTitleReaction: [
-      '(살짝 어색하게 웃으며) 저는 김이배 대표입니다. 다시 한번 확인해주시겠어요?',
-      '(짧게) 호칭이 다른 것 같습니다.',
+    briefReaction: [
+      '(고개를 끄덕이며) 네, 수고하세요.',
+      '알겠습니다.',
     ],
-    tooShortReaction: ['(고개를 끄덕이며) 네, 수고하세요.', '알겠습니다.'],
-    noWeatherReaction: [
-      '(자연스럽게) 날씨 정보도 함께 알려주시면 좋겠네요.',
+    okReaction: [
+      '감사합니다. 잘 부탁드립니다.',
+      '수고하세요.',
     ],
-    okReaction: ['감사합니다. 잘 부탁드립니다.', '수고하세요.'],
     goodReaction: [
       '감사합니다. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
-      '잘 알겠습니다. 날씨 정보도 유용하네요. 편안한 비행이 될 것 같아요.',
+      '날씨 정보도 유용합니다. 편안한 비행이 될 것 같아요.',
     ],
     excellentReaction: [
-      '잘했습니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 규정대로 안내해주셨어요. 잘 부탁드립니다.',
-      '훌륭합니다. JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.',
+      '잘 했어요, 사무장님. 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 잘 부탁드립니다.',
+      'JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.',
     ],
   },
   5: { // JIP · 장주녀 객실본부장
     correctTitles: ['장주녀', '본부장님', '본부장'],
-    wrongTitleReaction: [
-      '(미소 지으며) 저는 장주녀 본부장입니다. 호칭을 다시 한번 확인해주시겠어요?',
-      '(부드럽게) 호칭이 조금 다른 것 같네요.',
+    briefReaction: [
+      '(고개를 끄덕이며) 네, 수고해요.',
+      '알겠어요.',
     ],
-    tooShortReaction: ['(고개를 끄덕이며) 네, 수고해요.', '알겠어요.'],
-    noWeatherReaction: [
-      '(친근하게) 날씨 정보도 함께 안내해주시면 좋겠어요.',
+    okReaction: [
+      '감사해요, 사무장님. 잘 부탁드려요.',
+      '수고하세요.',
     ],
-    okReaction: ['감사해요, 사무장님. 잘 부탁드려요.', '수고하세요.'],
     goodReaction: [
       '잘 하셨어요. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
-      '감사해요. 날씨도 알려주시니 편하네요. 편안한 비행 되겠어요.',
+      '감사해요. 날씨 정보도 포함해주셨군요. 편안한 비행 되겠어요.',
     ],
     excellentReaction: [
-      '훌륭합니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 JJEMS 규정대로 완벽하게 안내해주셨어요. 잘 부탁드립니다.',
-      '정말 잘 하셨어요. 자연스러우면서도 규정에 맞는 Greeting이었습니다. 앞으로도 이렇게 해주세요.',
+      '훌륭합니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 수고하세요.',
+      '정말 잘 하셨어요. JJEMS 규정을 자연스럽게 녹인 Greeting이었습니다. 앞으로도 이렇게 해주세요.',
     ],
   },
 };
@@ -777,7 +796,8 @@ function analyzeGreeting(greeting, passenger) {
     : score >= 73 ? 'good'
     : 'ok';
 
-  return { score, feedback, strengths, improvement, tier, hasFlightInfo, hasWeatherInfo };
+  const hasTitleCorrect = hasCorrectTitle;
+  return { score, feedback, strengths, improvement, tier, hasFlightInfo, hasWeatherInfo, hasTitleCorrect };
 }
 
 function buildDemoInstructorComment(tier, score, passenger, greeting, analysis) {
@@ -849,21 +869,13 @@ async function getDemoResponse(passenger, greeting) {
   const data = demoData[pid];
   const analysis = analyzeGreeting(greeting, passenger);
 
-  const responseMap = {
-    wrongTitle: data.wrongTitleReaction,
-    tooShort:   data.tooShortReaction,
-    ok:         data.okReaction,
-    good:       data.goodReaction,
-    excellent:  data.excellentReaction,
-  };
-  // noWeather tier: 비행정보·날씨 없을 때 별도 반응
-  let responseTier = analysis.tier;
-  if (responseTier === 'ok' && !analysis.hasFlightInfo && data.noWeatherReaction) {
-    responseTier = 'noWeather';
-    responseMap.noWeather = data.noWeatherReaction;
-  }
+  // 승객은 호칭 오류를 지적하지 않음 — 점수 기반으로 자연스러운 온도 차이만 표현
+  const responseTier =
+    analysis.score >= 88 ? 'excellent' :
+    analysis.score >= 70 ? 'good' :
+    analysis.score >= 50 ? 'ok' : 'brief';
 
-  const passengerResponse = pick(responseMap[responseTier] || responseMap['ok']);
+  const passengerResponse = pick(data[responseTier + 'Reaction'] || data.okReaction);
   const instructorComment = buildDemoInstructorComment(analysis.tier, analysis.score, passenger, greeting, analysis);
   const expressionFeedback = generateExpressionFeedback(greeting, analysis.tier);
 
@@ -874,6 +886,9 @@ async function getDemoResponse(passenger, greeting) {
     expressionFeedback,
     strengths: analysis.strengths,
     improvement: analysis.improvement,
+    hasFlightInfo: analysis.hasFlightInfo,
+    hasWeatherInfo: analysis.hasWeatherInfo,
+    hasTitleCorrect: analysis.hasTitleCorrect,
   };
 }
 

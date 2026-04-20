@@ -412,12 +412,28 @@ select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,102,0
 .ef-improve .ef-phrase { color: #D97706; background: rgba(251,191,36,0.12); }
 .ef-comment { font-size: 13px; color: var(--text); line-height: 1.55; }
 
-/* ── Strengths / Improvement ─────────────── */
-.strengths-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.strength-item { font-size: 13px; color: #065F46; background: #DCFCE7; padding: 8px 12px; border-radius: 8px; line-height: 1.5; border-left: 3px solid #22C55E; }
-.improvement-box { background: var(--orange-pale); border: 1px solid var(--orange-tint); border-radius: 10px; padding: 12px 14px; }
-.improvement-label { display: block; font-size: 12px; font-weight: 700; color: var(--orange-dark); margin-bottom: 6px; }
-.improvement-text { font-size: 13px; color: #7C3500; line-height: 1.6; }
+/* ── Learning Summary (학습 정리) ────────── */
+.learning-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
+}
+.ls-col { display: flex; flex-direction: column; gap: 6px; }
+.ls-title {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+  padding: 4px 8px; border-radius: 6px; margin-bottom: 2px;
+}
+.ls-good-title  { background: #DCFCE7; color: #166534; }
+.ls-check-title { background: #FEF9C3; color: #713F12; }
+.ls-list { display: flex; flex-direction: column; gap: 5px; }
+.ls-item {
+  font-size: 12px; line-height: 1.55; padding: 7px 10px; border-radius: 8px;
+}
+.ls-good-item  { background: #F0FDF4; color: #166534; border-left: 3px solid #22C55E; }
+.ls-check-item { background: #FEFCE8; color: #713F12; border-left: 3px solid #EAB308; }
+.ls-empty      { background: #F8FAFC; color: var(--text-muted); font-style: italic; }
+
+/* improvement-box는 ls-col 내에서 hidden 토글용으로 유지 */
+.improvement-box { display: contents; }
+.improvement-text { font-size: 12px; }
 
 /* ── TTS Button ──────────────────────────── */
 .btn-tts {
@@ -445,6 +461,7 @@ select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,102,0
 @media (max-width: 600px) {
   .training-grid { grid-template-columns: 1fr; }
   .cf-grid { grid-template-columns: 1fr; }
+  .learning-summary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
