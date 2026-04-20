@@ -41,23 +41,20 @@
     <main class="main">
       <!-- 승객 선택 -->
       <section class="select-section card">
-        <label for="passengerSelect" class="section-label">탑승한 JJEMS 선택</label>
+        <label for="passengerSelect" class="section-label">탑승한 JJEMS 승객 선택</label>
         <div class="select-wrapper">
           <select id="passengerSelect">
-            <option value="">-- 탑승 승객을 선택하세요 --</option>
-            <option value="1">VIP · 이재명 대통령</option>
-            <option value="2">VVIP · 삼성 계열사 부회장</option>
-            <option value="3">VIP · 주한 미국 대사</option>
-            <option value="4">JJEMS Gold · 월 4회 이상 탑승 상용고객</option>
-            <option value="5">VIP · 국가대표 축구선수단</option>
-            <option value="6">JJEMS Silver · 첫 비즈니스 라이트 업그레이드 고객</option>
-            <option value="7">VVIP · 유명 방송인</option>
-            <option value="8">JJEMS Gold · 고령 단골 어르신</option>
+            <option value="">-- 탑승 JJEMS 승객을 선택하세요 --</option>
+            <option value="1">VIP · 이재명 대통령 (전/현직 대통령)</option>
+            <option value="2">CIP · 이재용 삼성전자 대표 (100대 대기업 회장)</option>
+            <option value="3">AIP · 채형석 애경그룹 회장 (모기업 회장)</option>
+            <option value="4">AAIP · 김이배 제주항공 대표이사 (계열사 대표)</option>
+            <option value="5">JIP · 장주녀 객실본부장 (제주항공 임원)</option>
           </select>
         </div>
       </section>
 
-      <!-- 승객 프로필 -->
+      <!-- 승객 프로필 + 탑승 현황 -->
       <section id="passengerSection" class="passenger-section hidden">
         <div class="profile-card card">
           <div class="profile-top">
@@ -69,52 +66,91 @@
           <div class="profile-details" id="profileDetails"></div>
         </div>
 
-        <div class="situation-card card">
-          <div class="situation-badge">탑승 상황</div>
-          <p id="situationText" class="situation-text"></p>
-          <div class="hint-box">
-            <span class="hint-label">✨ Greeting 포인트</span>
-            <ul id="hintList" class="hint-list"></ul>
+        <!-- 탑승 현황 -->
+        <div class="boarding-status card" id="boardingStatus">
+          <div class="bs-header">
+            <span class="bs-title">탑승 현황</span>
+            <span class="bs-type-badge" id="bsTypeBadge"></span>
           </div>
+          <div class="bs-body">
+            <div class="bs-stat">
+              <span class="bs-stat-label">탑승 인원</span>
+              <span class="bs-stat-value" id="bsCount"></span>
+            </div>
+            <div class="bs-stat">
+              <span class="bs-stat-label">좌석</span>
+              <span class="bs-stat-value" id="bsSeat"></span>
+            </div>
+            <div class="bs-stat">
+              <span class="bs-stat-label">특이사항</span>
+              <span class="bs-stat-value" id="bsNote"></span>
+            </div>
+          </div>
+          <div class="bs-icons" id="bsIcons"></div>
         </div>
       </section>
 
       <!-- 훈련 섹션 -->
       <section id="actionSection" class="action-section hidden">
+
+        <!-- 상태 바 -->
         <div class="status-bar">
           <span class="status-label">훈련 상태</span>
           <span id="statusBadge" class="status-badge waiting">대기 중</span>
         </div>
 
-        <!-- 녹음 영역 -->
-        <div class="recording-area card">
-          <p id="recordingGuide" class="recording-guide">마이크 버튼을 눌러 Greeting을 시작하세요</p>
+        <!-- 훈련 그리드: 녹음 + 탑승상황 나란히 -->
+        <div class="training-grid">
 
-          <div class="record-btn-wrap">
-            <button id="recordBtn" class="btn btn-record">
-              <span class="btn-icon">🎤</span>
-              <span id="recordBtnText">Greeting 녹음하기</span>
-            </button>
+          <!-- 녹음 + 제출 -->
+          <div class="recording-area card">
+            <p id="recordingGuide" class="recording-guide">마이크 버튼을 눌러 Greeting을 시작하세요</p>
+
+            <div class="recording-controls">
+              <button id="recordBtn" class="btn btn-record">
+                <span class="btn-icon">🎤</span>
+                <span id="recordBtnText">녹음 시작</span>
+              </button>
+              <button id="submitBtn" class="btn btn-submit" disabled>
+                <span class="btn-icon">📤</span>
+                응대 제출
+              </button>
+            </div>
+
+            <!-- 녹음 중 애니메이션 -->
+            <div id="recordingIndicator" class="recording-indicator hidden">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="recording-text">녹음 중...</span>
+            </div>
+
+            <!-- 실시간 인식 텍스트 -->
+            <div id="liveTranscriptBox" class="live-transcript-box hidden">
+              <div class="live-transcript-label">🎙 인식 중</div>
+              <p id="liveTranscriptText" class="live-transcript-text"></p>
+            </div>
+
+            <!-- 음성인식 미지원 시 텍스트 입력 -->
+            <div id="fallbackInput" class="fallback-input hidden">
+              <label class="fallback-label">이 브라우저는 음성인식을 지원하지 않습니다. 직접 입력하세요.</label>
+              <textarea id="fallbackText" class="fallback-textarea" placeholder="인사말을 직접 입력하세요..."></textarea>
+            </div>
           </div>
 
-          <!-- 녹음 중 애니메이션 -->
-          <div id="recordingIndicator" class="recording-indicator hidden">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="recording-text">녹음 중...</span>
+          <!-- 탑승 상황 + JJEMS Greeting 포인트 -->
+          <div class="situation-card card" id="situationCard">
+            <div class="situation-badge">탑승 상황</div>
+            <p id="situationText" class="situation-text"></p>
+            <div class="hint-box">
+              <div class="hint-header">
+                <span class="hint-label">✨ JJEMS Greeting 포인트</span>
+                <span class="hint-grade-tag" id="hintGradeTag"></span>
+              </div>
+              <ul id="hintList" class="hint-list"></ul>
+              <div class="hint-grade-note" id="hintGradeNote"></div>
+            </div>
           </div>
 
-          <!-- 실시간 인식 텍스트 -->
-          <div id="liveTranscriptBox" class="live-transcript-box hidden">
-            <div class="live-transcript-label">🎙 인식 중</div>
-            <p id="liveTranscriptText" class="live-transcript-text"></p>
-          </div>
-
-          <!-- 음성인식 미지원 시 텍스트 입력 -->
-          <div id="fallbackInput" class="fallback-input hidden">
-            <label class="fallback-label">이 브라우저는 음성인식을 지원하지 않습니다. 직접 입력하세요.</label>
-            <textarea id="fallbackText" class="fallback-textarea" placeholder="인사말을 직접 입력하세요..."></textarea>
-          </div>
-        </div>
+        </div><!-- /training-grid -->
 
         <!-- 내 인사말 결과 -->
         <div id="transcriptResult" class="transcript-result card hidden">
@@ -149,33 +185,57 @@
           <div class="pr-bubble">
             <p id="passengerResponseText" class="pr-text"></p>
           </div>
+          <button id="ttsBtn" class="btn-tts hidden" onclick="speakPassengerResponse(document.getElementById('passengerResponseText').textContent)">🔊 다시 듣기</button>
         </div>
 
-        <!-- 평가 결과 -->
-        <div id="resultArea" class="result-area card hidden">
-          <div class="result-header">
-            <span class="result-icon">📋</span>
-            <span class="result-title">Greeting 평가</span>
+        <!-- 대화 중 피드백 (승객 응답 직후: Greeting 포인트 요약 + 표현 분석) -->
+        <div id="conversationFeedback" class="conversation-feedback card hidden">
+          <div class="cf-header">
+            <span class="cf-icon">💬</span>
+            <span class="cf-title">대화 중 피드백</span>
           </div>
-          <div class="score-row">
-            <span class="score-label">Greeting 점수</span>
-            <span id="scoreValue" class="score-value"></span>
+          <div class="cf-grid">
+            <div class="cf-col">
+              <div class="cf-subtitle">✨ Greeting 포인트 요약</div>
+              <ul id="cfHintList" class="cf-hint-list"></ul>
+            </div>
+            <div class="cf-col">
+              <div class="cf-subtitle">📝 내 표현 분석</div>
+              <div id="cfExpressionList" class="ef-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 교관 평가 결과 -->
+        <div id="resultArea" class="result-area card hidden">
+          <div class="instructor-header">
+            <div class="instructor-avatar-wrap">
+              <div class="instructor-avatar">👩‍✈️</div>
+            </div>
+            <div class="instructor-info">
+              <span class="instructor-name">객실서비스교관</span>
+              <span class="instructor-sub">JJEMS 서비스 평가</span>
+            </div>
+            <div class="score-chip" id="scoreChip"></div>
+          </div>
+          <div class="score-bar-wrap">
             <div id="scoreBar" class="score-bar"><div id="scoreBarFill" class="score-bar-fill"></div></div>
           </div>
-          <p id="feedbackText" class="feedback-text"></p>
+          <!-- 교관 코멘트 -->
+          <div class="instructor-comment-box">
+            <p id="feedbackText" class="instructor-comment-text"></p>
+          </div>
+          <!-- 잘한 점 -->
           <div id="strengthsList" class="strengths-list"></div>
+          <!-- 개선 포인트 -->
           <div id="improvementBox" class="improvement-box hidden">
             <span class="improvement-label">💡 개선 포인트</span>
             <p id="improvementText" class="improvement-text"></p>
           </div>
         </div>
 
-        <!-- 버튼 -->
-        <div class="action-buttons">
-          <button id="submitBtn" class="btn btn-submit" disabled>
-            <span class="btn-icon">📤</span>
-            응대 완료 (제출)
-          </button>
+        <!-- 다시 시작 버튼 -->
+        <div class="reset-row">
           <button id="resetBtn" class="btn btn-reset">
             <span class="btn-icon">🔄</span>
             다시 시작

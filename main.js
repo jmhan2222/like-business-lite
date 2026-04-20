@@ -1,108 +1,96 @@
 // ─── Passenger Data ───────────────────────────────────────────────────────────
+// JJEMS: 회사·지역사회 이익을 위해 특별히 환대해야 하는 주요 인사를 Code로 구분
+// VIP(정치요인) / CIP(100대 대기업 회장) / AIP(모기업 회장·부회장) / AAIP(계열사 대표) / JIP(임원·가족)
 const passengers = {
   1: {
     grade: 'VIP', gradeClass: 'vip', avatar: '🇰🇷',
-    name: '이재명 대통령', sub: '대한민국 제21대 대통령',
-    details: ['전용 의전 탑승', '경호원 동반', '좌석 1A'],
-    situation: '대통령 전용 의전 일정으로 비즈니스 라이트 구역에 탑승하셨습니다. 경호원 2명이 인근 좌석에 배치되어 있으며, 기내 보안 절차가 강화된 상황입니다.',
+    name: '이재명 대통령', sub: '대한민국 제21대 대통령 · VIP',
+    details: ['전/현직 대통령', '경호원 동반 가능', '좌석 1A'],
+    boardingCount: 2, boardingType: '의전 탑승', seat: '1A',
+    boardingNote: '경호원 동반 가능 · 정치적 중립 유지',
+    situation: '대한민국 현직 대통령이 일정으로 탑승하셨습니다. 경호원이 동반할 수 있으며, 격식 있고 간결한 Greeting이 필요합니다. JJEMS 규정에 따라 비행 정보 및 목적지 날씨를 함께 안내드립니다.',
     hints: [
-      '직함을 정확히 호칭합니다. "대통령님, 탑승을 진심으로 환영합니다."',
-      '의전 특성상 간결하고 품격 있게 — 긴 안내보다 따뜻한 한 마디가 효과적입니다.',
-      '경호원 존재를 인식하되, 시선과 말은 대통령님께만 집중합니다.',
-      '필요한 것이 있으시면 즉시 알려달라는 말로 자연스럽게 마무리합니다.'
+      '호칭: "대통령님"이 공식·비공식 모두 적합합니다.',
+      '비행 정보 + 날씨 포함: "오늘 제주까지 약 55분 소요되며, 제주 현재 기온은 18도 맑음입니다."',
+      '간결하게 — 오래 머물면 다른 승객에게 불쾌감을 줄 수 있습니다.',
+      '개인적인 질문·사진 촬영 요청은 절대 하지 않습니다.',
+      '운항 중 Walk Around 시 자연스럽게 필요 사항을 살핍니다.',
+      '하기 시: "즐거운 일정 되시길 바랍니다, 대통령님"으로 정중히 인사드립니다.'
     ],
-    persona: '당신은 대한민국 제21대 대통령 이재명입니다. 바쁜 의전 일정 중에 탑승했으며, 격식을 갖춘 응대를 자연스럽게 받아들이십니다. 간결하고 따뜻하게 반응하십니다.'
+    gradeNote: 'VIP — 전/현직 대통령, 영부인, 국회의원 등 정치 요인',
+    persona: '당신은 대한민국 제21대 대통령 이재명입니다. 바쁜 일정 중 탑승했으며, 격식 있고 간결한 응대를 자연스럽게 받아들입니다. 비행정보와 날씨까지 안내해주면 만족하며, 짧고 따뜻하게 반응하십시오.'
   },
   2: {
-    grade: 'VVIP', gradeClass: 'vvip', avatar: '💼',
-    name: '김준혁 부회장', sub: '삼성 계열사 부회장 · JJEMS VVIP',
-    details: ['탑승 횟수 연 200회+', '선호 음료: 생수', '좌석 2A'],
-    situation: '연간 200회 이상 탑승하는 최우수 VVIP 고객입니다. 오늘은 단독 출장으로 탑승하셨으며, 항상 조용하고 신속한 서비스를 선호하십니다.',
+    grade: 'CIP', gradeClass: 'cip', avatar: '💼',
+    name: '이재용 대표', sub: '삼성전자 대표 · CIP',
+    details: ['매출 1위 대기업 대표', '단독 출장', '좌석 2A'],
+    boardingCount: 1, boardingType: '단독 출장', seat: '2A',
+    boardingNote: '조용하고 효율적인 서비스 선호',
+    situation: '매출액 기준 국내 1위 대기업 삼성전자의 대표가 단독 출장으로 탑승하셨습니다. 특별한 관심을 기대하거나 요구하지 않으며, JJEMS 규정에 따라 비행 정보·날씨 안내와 함께 자연스럽고 간결한 응대가 중요합니다.',
     hints: [
-      '이름을 직접 호칭하여 개인화된 인사를 드립니다.',
-      '이전 탑승 경험에 대한 감사 표현으로 유대감을 형성합니다.',
-      '선호 음료(생수)를 선제적으로 안내하면 특별한 인상을 남길 수 있습니다.',
-      '바쁘실 것을 고려해 짧고 임팩트 있게 마무리합니다.'
+      '호칭: "이재용 대표님" 또는 "대표님"으로 호칭합니다.',
+      '비행 정보 + 날씨 포함: "서울까지 약 1시간 소요되며, 서울 현재 날씨는 맑고 기온 22도입니다."',
+      '조용하고 신속하게 — 불필요하게 오래 머물지 않습니다.',
+      '개인적인 질문·사진 촬영 요청은 절대 하지 않습니다.',
+      'Walk Around 시 자연스럽게 살피되, 과도한 관심은 피합니다.',
+      '하기 시: "안녕히 가십시오, 대표님"으로 정중히 인사드립니다.'
     ],
-    persona: '당신은 삼성 계열사 부회장 김준혁입니다. 연간 200회 이상 탑승하는 베테랑 탑승객으로, 불필요한 형식보다 진심 어린 서비스에 감동받습니다. 간결하고 솔직하게 반응합니다.'
+    gradeNote: 'CIP — 매출액 기준 1~100위 대기업 회장',
+    persona: '당신은 삼성전자 대표 이재용입니다. 바쁜 출장 일정 중 탑승했으며, 불필요한 형식 없이 간결하고 프로페셔널한 서비스에 만족합니다. 짧고 간결하게 반응하십시오.'
   },
   3: {
-    grade: 'VIP', gradeClass: 'vip', avatar: '🌐',
-    name: 'Philip Goldberg 대사', sub: '주한 미국 대사 · VIP',
-    details: ['외교 의전 탑승', '영어 응대 필요', '좌석 1C'],
-    situation: '주한 미국 대사가 외교 일정으로 탑승하셨습니다. 영어로 소통하시며, 국가 간 예의를 갖춘 격식 있는 Greeting이 필요합니다.',
+    grade: 'AIP', gradeClass: 'aip', avatar: '🏢',
+    name: '채형석 회장', sub: '애경그룹 회장 · AIP',
+    details: ['제주항공 모기업 회장', '비즈니스 출장', '좌석 1C'],
+    boardingCount: 1, boardingType: '단독 출장', seat: '1C',
+    boardingNote: '모기업 오너 — 서비스 전반 주목 가능',
+    situation: '제주항공 모기업인 애경그룹 채형석 회장이 탑승하셨습니다. 제주항공 서비스의 모든 면을 직접 경험하시는 만큼, 자연스럽고 품격 있는 응대가 중요합니다. JJEMS 규정에 따라 비행 정보와 날씨 안내를 포함합니다.',
     hints: [
-      '영어와 한국어를 함께 사용해 외교적 배려를 표현합니다.',
-      '"Ambassador"라는 직함을 정확히 사용합니다.',
-      '간결하고 따뜻한 영어 인사로 편안함을 드립니다.',
-      '한국어로 짧게 덧붙이면 상호 존중의 메시지가 됩니다.'
+      '호칭: "채형석 회장님" 또는 "회장님"으로 정확하게 호칭합니다.',
+      '비행 정보 + 날씨 포함: 목적지 비행시간과 날씨를 간단히 안내드립니다.',
+      '모기업 오너이시므로 서비스 전반이 평가될 수 있음을 인식합니다.',
+      '과도한 응대는 오히려 역효과 — 자연스럽고 프로페셔널하게 유지합니다.',
+      '개인적인 질문·사진 촬영 요청은 절대 하지 않습니다.',
+      '하기 시: "즐거운 시간 되시길 바랍니다, 회장님"으로 정중히 마무리합니다.'
     ],
-    persona: 'You are Ambassador Philip Goldberg, US Ambassador to South Korea. You appreciate bilingual greetings and diplomatic courtesy. You respond warmly but with dignity. Reply in English or Korean based on how you are addressed.'
+    gradeNote: 'AIP — 모기업(애경그룹) 회장 및 부회장',
+    persona: '당신은 애경그룹 회장 채형석입니다. 제주항공 모기업 오너로서 서비스 품질에 관심을 갖고 있습니다. 자연스럽고 격식 있는 응대에 만족하며, 짧고 품격 있게 반응하십시오.'
   },
   4: {
-    grade: 'GOLD', gradeClass: 'gold', avatar: '⭐',
-    name: '박서준 고객', sub: '월 4회 이상 탑승 상용고객 · JJEMS Gold',
-    details: ['누적 탑승 148회', '제주 노선 집중 이용', '좌석 3B'],
-    situation: '이번이 148번째 탑승입니다. 비즈니스 라이트로 처음 업그레이드되어 탑승하셨습니다. 단골 고객에게 감사와 특별함을 느끼게 해드리는 Greeting이 필요합니다.',
+    grade: 'AAIP', gradeClass: 'aaip', avatar: '✈️',
+    name: '김이배 대표', sub: '제주항공 대표이사 · AAIP',
+    details: ['제주항공 대표이사', '업무 출장', '좌석 2C'],
+    boardingCount: 1, boardingType: '업무 탑승', seat: '2C',
+    boardingNote: '자사 대표 — 자연스럽고 프로페셔널하게',
+    situation: '제주항공 대표이사 김이배 님이 업무 목적으로 탑승하셨습니다. 자사 최고경영자로서 항공사 서비스를 직접 경험하십니다. 자연스럽고 프로페셔널한 응대가 중요하며, 지나치게 긴장하면 오히려 어색합니다.',
     hints: [
-      '누적 탑승에 대한 진심 어린 감사를 전합니다.',
-      '비즈니스 라이트 업그레이드를 축하하며 특별함을 강조합니다.',
-      '이름을 기억하고 불러드리는 것만으로도 큰 감동을 드릴 수 있습니다.',
-      '편안하고 친근한 어조로, 형식적이지 않게 인사합니다.'
+      '호칭: "김이배 대표님" 또는 "대표님"으로 호칭합니다.',
+      '비행 정보 + 날씨 포함: 일반 JJEMS 응대와 동일하게 비행시간과 날씨를 안내합니다.',
+      '지나치게 긴장하거나 굳어있으면 오히려 역효과 — 침착하고 자연스럽게 응대합니다.',
+      '자사 대표이사이므로 서비스 전반이 모니터링될 수 있음을 인식합니다.',
+      '개인적인 질문·회사 업무 관련 이야기는 꺼내지 않습니다.',
+      '하기 시: "안녕히 가십시오, 대표님"으로 정중하고 자연스럽게 인사드립니다.'
     ],
-    persona: '당신은 박서준, JJEMS Gold 상용고객입니다. 148번째 탑승이지만 오늘은 처음 비즈니스 라이트를 이용합니다. 이름을 불러주거나 업그레이드를 축하해주면 기뻐합니다. 친근하고 밝게 반응합니다.'
+    gradeNote: 'AAIP — 모기업 계열사(제주항공) 대표이사',
+    persona: '당신은 제주항공 대표이사 김이배입니다. 자사 서비스를 직접 경험하는 입장으로, 자연스럽고 프로페셔널한 응대에 만족합니다. 동료를 대하듯 짧고 자연스럽게 반응하십시오.'
   },
   5: {
-    grade: 'VIP', gradeClass: 'vip', avatar: '⚽',
-    name: '황희찬 선수 외 국가대표단', sub: '국가대표 축구선수단 · VIP 단체',
-    details: ['선수단 총 25명', '대규모 수하물', '구역 전체 배정'],
-    situation: 'A매치 원정 일정을 마치고 귀국하는 국가대표 축구선수단이 탑승했습니다. 피로한 상태이며, 단체 전체에 존중을 표하는 Greeting이 필요합니다.',
+    grade: 'JIP', gradeClass: 'jip', avatar: '👩‍✈️',
+    name: '장주녀 본부장', sub: '제주항공 객실본부장 · JIP',
+    details: ['제주항공 객실본부장', '임원 탑승', '좌석 3A'],
+    boardingCount: 1, boardingType: '임원 탑승', seat: '3A',
+    boardingNote: '직속 상급자 — 자연스럽게 프로페셔널하게',
+    situation: '제주항공 객실본부장 장주녀 님이 탑승하셨습니다. 객실 서비스를 총괄하는 임원으로서 사무장의 응대를 직접 경험하십니다. 동료 임원으로서 자연스럽고 프로페셔널하게 응대하되 JIP 규정을 정확히 준수합니다.',
     hints: [
-      '단체 전체를 향한 밝고 활기찬 첫 인사로 분위기를 만듭니다.',
-      '원정 일정의 노고를 진심으로 치하합니다.',
-      '피로 회복에 도움이 되는 서비스(음료, 담요 등)를 선제적으로 언급합니다.',
-      '개인 응대보다 단체 분위기를 먼저 챙기는 방식이 효과적입니다.'
+      '호칭: "장주녀 본부장님" 또는 "본부장님"으로 정확하게 호칭합니다.',
+      '비행 정보 + 날씨 포함: 규정대로 비행시간과 목적지 날씨를 안내드립니다.',
+      '객실 서비스 전문가 앞에서 정확하고 자연스러운 Greeting이 특히 중요합니다.',
+      '지나치게 경직되거나 과도하게 예우하면 오히려 어색 — 침착하게 응대합니다.',
+      '동료 임원이지만 JIP 규정을 정확히 준수하는 것이 곧 전문성 표현입니다.',
+      '하기 시: "수고하셨습니다, 본부장님"으로 자연스럽게 인사드립니다.'
     ],
-    persona: '당신은 황희찬 선수입니다. 국가대표 원정을 마치고 피곤하지만 팬과 항공사의 응원에 감사한 마음을 갖고 있습니다. 단체를 대표해 밝고 짧게 반응합니다.'
-  },
-  6: {
-    grade: 'SILVER', gradeClass: 'silver', avatar: '🌟',
-    name: '최지은 고객', sub: '첫 비즈니스 라이트 업그레이드 · JJEMS Silver',
-    details: ['첫 비즈니스 라이트 탑승', '생일 탑승 (당일)', '좌석 4A'],
-    situation: '오늘이 생일이며 처음으로 비즈니스 라이트 좌석으로 업그레이드되어 탑승한 고객입니다. 설레는 표정으로 탑승하셨으며, 이 경험이 특별한 추억이 될 수 있도록 배려하는 Greeting이 필요합니다.',
-    hints: [
-      '첫 비즈니스 라이트 탑승을 진심으로 축하합니다.',
-      '생일임을 알고 있다면 자연스럽게 축하 인사를 더합니다.',
-      '따뜻하고 개인적인 어조로 특별한 날임을 함께 느끼게 해줍니다.',
-      '오늘 비행이 기억에 남을 수 있도록 작은 서비스를 약속합니다.'
-    ],
-    persona: '당신은 최지은, 오늘 생일인 JJEMS Silver 고객입니다. 생애 첫 비즈니스 라이트 탑승에 설레고 기쁩니다. 따뜻한 인사에 진심으로 감동받으며, 밝고 감사하게 반응합니다.'
-  },
-  7: {
-    grade: 'VVIP', gradeClass: 'vvip', avatar: '🎬',
-    name: '이효리 씨', sub: '유명 방송인 · JJEMS VVIP',
-    details: ['방송 중 언급 가능성', '사생활 보호 최우선', '좌석 2C'],
-    situation: '국민적인 인지도를 가진 방송인이 탑승하셨습니다. 다른 승객들의 시선이 집중될 수 있으므로 사생활 보호가 최우선입니다. 과도한 반응 없이 자연스럽고 품격 있는 Greeting이 요구됩니다.',
-    hints: [
-      '다른 승객이 들을 수 있으므로 이름을 크게 언급하지 않습니다.',
-      '자연스럽고 낮은 목소리로 조용히 인사합니다.',
-      '특별 취급보다는 VIP로서의 배려를 조용히 전합니다.',
-      '프라이버시 보호 의지를 간접적으로 전달합니다.'
-    ],
-    persona: '당신은 이효리, JJEMS VVIP 고객입니다. 유명인으로서 프라이버시가 중요하며, 조용하고 자연스러운 응대를 선호합니다. 과도한 관심 없이 차분하게 인사해주면 만족스럽게 반응합니다.'
-  },
-  8: {
-    grade: 'GOLD', gradeClass: 'gold', avatar: '🌸',
-    name: '김순자 고객님', sub: '78세 · JJEMS Gold 장기 단골 고객',
-    details: ['탑승 10년 이상', '거동 보조 필요', '좌석 3A (통로측)'],
-    situation: '10년 이상 제주항공을 이용해온 고령의 단골 JJEMS Gold 고객입니다. 거동이 다소 불편하시고 귀가 잘 들리지 않으십니다. 따뜻하고 존중 어린 태도로, 천천히 또렷하게 인사드리는 것이 중요합니다.',
-    hints: [
-      '눈높이를 맞추고 또렷하게, 천천히 인사합니다.',
-      '오랜 단골 고객님께 진심 어린 감사 인사를 드립니다.',
-      '거동 불편 여부를 자연스럽게 확인하고 도움을 선제적으로 제안합니다.',
-      '존칭을 정확히 사용하고, 다정하면서도 격식 있게 응대합니다.'
-    ],
-    persona: '당신은 김순자, 78세 JJEMS Gold 단골 고객입니다. 10년 넘게 제주항공을 이용해왔습니다. 따뜻하고 천천히 인사해주는 승무원에게 감동받으며, 정성스러운 배려에 기꺼이 감사 인사로 화답합니다.'
+    gradeNote: 'JIP — 제주항공 임원 및 가족',
+    persona: '당신은 제주항공 객실본부장 장주녀입니다. 객실 서비스 전반을 총괄하는 임원으로서, 사무장의 Greeting을 전문가 시각으로 경험합니다. 규정을 잘 준수하는 자연스러운 응대에 만족하며, 따뜻하게 반응하십시오.'
   }
 };
 
@@ -151,13 +139,16 @@ const prAvatar               = $('prAvatar');
 const prName                 = $('prName');
 const passengerResponseText  = $('passengerResponseText');
 
-const resultArea      = $('resultArea');
-const scoreValue      = $('scoreValue');
-const scoreBarFill    = $('scoreBarFill');
-const feedbackText    = $('feedbackText');
-const strengthsList   = $('strengthsList');
-const improvementBox  = $('improvementBox');
-const improvementText = $('improvementText');
+const resultArea       = $('resultArea');
+const scoreChip        = $('scoreChip');
+const scoreBarFill     = $('scoreBarFill');
+const feedbackText     = $('feedbackText');
+const strengthsList    = $('strengthsList');
+const improvementBox   = $('improvementBox');
+const improvementText  = $('improvementText');
+const conversationFeedback = $('conversationFeedback');
+const cfHintList           = $('cfHintList');
+const cfExpressionList     = $('cfExpressionList');
 
 const submitBtn = $('submitBtn');
 const resetBtn  = $('resetBtn');
@@ -243,8 +234,28 @@ function renderPassenger(p) {
   $('passengerName').textContent = p.name;
   $('passengerSub').textContent = p.sub;
   $('profileDetails').innerHTML = p.details.map(d => `<span class="detail-chip">${d}</span>`).join('');
+
+  // 탑승 현황
+  $('bsTypeBadge').textContent = p.boardingType;
+  $('bsCount').textContent = p.boardingCount + '명';
+  $('bsSeat').textContent = p.seat;
+  $('bsNote').textContent = p.boardingNote;
+
+  // 탑승 인원 아이콘
+  const iconsEl = $('bsIcons');
+  const max = Math.min(p.boardingCount, 10);
+  let icons = '';
+  for (let i = 0; i < max; i++) icons += '<span class="bs-person-icon">👤</span>';
+  if (p.boardingCount > 10) icons += `<span class="bs-person-more">+${p.boardingCount - 10}명</span>`;
+  iconsEl.innerHTML = p.boardingCount > 1 ? icons : '';
+
+  // 탑승 상황 + 힌트
   $('situationText').textContent = p.situation;
   $('hintList').innerHTML = p.hints.map(h => `<li>${h}</li>`).join('');
+  const hintGrade = $('hintGradeTag');
+  hintGrade.textContent = p.grade;
+  hintGrade.className = 'hint-grade-tag ' + p.gradeClass;
+  $('hintGradeNote').textContent = p.gradeNote;
 }
 
 // ─── Speech Recognition ───────────────────────────────────────────────────────
@@ -389,19 +400,53 @@ submitBtn.addEventListener('click', async () => {
     passengerResponseText.textContent = result.passengerResponse;
     passengerResponseCard.classList.remove('hidden');
 
-    scoreValue.textContent = result.score + '점';
+    const ttsBtn = document.getElementById('ttsBtn');
+    if (ttsBtn) {
+      ttsBtn.classList.remove('hidden');
+      ttsBtn.textContent = '🔊 다시 듣기';
+      ttsBtn.disabled = false;
+    }
+    const trySpeak = () => speakPassengerResponse(result.passengerResponse);
+    if (window.speechSynthesis) {
+      if (window.speechSynthesis.getVoices().length) trySpeak();
+      else window.speechSynthesis.onvoiceschanged = trySpeak;
+    }
+
+    // 대화 중 피드백 (Greeting 포인트 요약 + 표현 분석)
+    cfHintList.innerHTML = (currentPassenger.hints || []).slice(0, 3).map(h =>
+      `<li>${h}</li>`
+    ).join('');
+
+    if (result.expressionFeedback && result.expressionFeedback.length > 0) {
+      cfExpressionList.innerHTML = result.expressionFeedback.map(ef =>
+        `<div class="ef-item ${ef.good ? 'ef-good' : 'ef-improve'}">
+          <span class="ef-phrase">${ef.phrase}</span>
+          <span class="ef-comment">${ef.comment}</span>
+        </div>`
+      ).join('');
+    } else {
+      cfExpressionList.innerHTML = '<p class="cf-empty">표현 분석 데이터가 없습니다.</p>';
+    }
+    conversationFeedback.classList.remove('hidden');
+
+    // 점수
     const pct = Math.min(100, Math.max(0, result.score));
+    scoreChip.textContent = result.score + '점';
+    scoreChip.className = 'score-chip' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
+
     scoreBarFill.style.width = '0%';
     setTimeout(() => { scoreBarFill.style.width = pct + '%'; }, 50);
-
     scoreBarFill.className = 'score-bar-fill' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
 
-    feedbackText.textContent = result.feedback;
+    // 교관 코멘트
+    feedbackText.textContent = result.instructorComment || result.feedback;
 
+    // 잘한 점
     strengthsList.innerHTML = (result.strengths || []).map(s =>
       `<div class="strength-item">✅ ${s}</div>`
     ).join('');
 
+    // 개선 포인트
     if (result.improvement) {
       improvementText.textContent = result.improvement;
       improvementBox.classList.remove('hidden');
@@ -442,7 +487,7 @@ function resetTrainingState() {
 
   recordBtn.classList.remove('active');
   recordBtn.disabled = false;
-  recordBtnText.textContent = 'Greeting 녹음하기';
+  recordBtnText.textContent = '녹음 시작';
   recordingIndicator.classList.add('hidden');
   liveTranscriptBox.classList.add('hidden');
   liveTranscriptText.textContent = '';
@@ -457,7 +502,12 @@ function resetTrainingState() {
 
   loadingResponse.classList.add('hidden');
   passengerResponseCard.classList.add('hidden');
+  conversationFeedback.classList.add('hidden');
   resultArea.classList.add('hidden');
+
+  const ttsBtn = document.getElementById('ttsBtn');
+  if (ttsBtn) ttsBtn.classList.add('hidden');
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
 
   submitBtn.disabled = true;
   hideError();
@@ -481,27 +531,34 @@ function hideError() {
 
 // ─── Claude API ───────────────────────────────────────────────────────────────
 function buildSystemPrompt(passenger) {
-  return `당신은 두 가지 역할을 동시에 수행합니다.
+  return `당신은 제주항공의 15년 경력 객실서비스교관 박지현 수석교관입니다. 전직 국제선 객실사무장 출신으로, JJEMS 서비스 시스템을 직접 설계한 전문가입니다.
+
+당신은 두 가지 역할을 동시에 수행합니다.
 
 [역할 1: 승객]
 ${passenger.persona}
-객실사무장의 인사말을 듣고 승객으로서 자연스럽고 짧게 반응하십시오 (1~3문장, 한국어).
+객실사무장의 인사말을 듣고 승객으로서 자연스럽고 짧게 반응하십시오 (1~3문장).
 
-[역할 2: 평가자]
-제주항공 JJEMS 비즈니스 라이트 서비스 전문가로서 객실사무장의 Greeting을 평가합니다.
+[역할 2: 박지현 교관의 평가]
+따뜻하고 격려적인 멘토 스타일로 교육합니다. 항상 "사무장님"이라고 부르며, 잘한 점을 먼저 칭찬하고 개선점을 부드럽게 제안합니다. 전문적이지만 다정한 어조를 유지하세요.
+
 승객 등급: ${passenger.grade} (${passenger.name})
 평가 기준:
-- 직함/호칭의 정확성
+- 직함·호칭의 정확성
 - 개인화 (이름, 상황 반영)
 - 품격과 어조
 - 진심과 자연스러움
 - JJEMS 서비스 기준 부합 여부
+- 표현의 구체성과 적절성
 
 반드시 아래 JSON 형식으로만 응답하십시오 (다른 텍스트 없음):
 {
   "passengerResponse": "승객의 자연스러운 반응 (1~3문장)",
   "score": 0~100 사이 정수,
-  "feedback": "전체적인 평가 한 문장",
+  "instructorComment": "박지현 교관으로서의 따뜻하고 전문적인 피드백 (사무장님으로 호칭, 2~3문장)",
+  "expressionFeedback": [
+    { "phrase": "사무장이 실제 사용한 특정 표현", "comment": "이 표현에 대한 교관의 짧은 코멘트", "good": true 또는 false }
+  ],
   "strengths": ["잘한 점 1", "잘한 점 2"],
   "improvement": "개선할 점 한 문장 또는 null"
 }`;
@@ -520,7 +577,7 @@ async function callClaudeAPI(passenger, greeting) {
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 700,
+      max_tokens: 900,
       system: buildSystemPrompt(passenger),
       messages: [{ role: 'user', content: `객실사무장의 인사말: "${greeting}"` }]
     })
@@ -539,183 +596,321 @@ async function callClaudeAPI(passenger, greeting) {
 }
 
 function parseJSON(text) {
-  // Direct parse
   try { return JSON.parse(text.trim()); } catch {}
-
-  // Code block extraction
   const block = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (block) {
-    try { return JSON.parse(block[1].trim()); } catch {}
-  }
-
-  // Brace extraction
+  if (block) { try { return JSON.parse(block[1].trim()); } catch {} }
   const brace = text.match(/\{[\s\S]*\}/);
-  if (brace) {
-    try { return JSON.parse(brace[0]); } catch {}
-  }
-
+  if (brace) { try { return JSON.parse(brace[0]); } catch {} }
   throw new Error('AI 응답을 처리할 수 없었습니다. 다시 시도해주세요.');
 }
 
-// ─── Demo Mode (API 키 없을 때) ────────────────────────────────────────────────
+// ─── Demo Mode ────────────────────────────────────────────────────────────────
 const demoData = {
-  1: {
-    responses: [
-      '수고해요. 잘 부탁드립니다.',
-      '네, 감사합니다. 편하게 지낼게요.',
-      '고마워요, 잘 부탁해요.'
+  1: { // VIP · 이재명 대통령
+    correctTitles: ['대통령님'],
+    wrongTitleReaction: [
+      '(잠시 멈칫하며) 저는 대통령입니다. 호칭을 다시 확인해주시겠어요?',
+      '(경호원과 눈빛을 교환하며) 호칭이 좀 어색하네요.',
     ],
-    goodResponses: [
-      '감사합니다. 사무장님 덕분에 마음이 편해지네요. 잘 부탁드립니다.',
-      '네, 정말 감사합니다. 바쁜 일정인데 이렇게 따뜻하게 맞아주시니 감사하네요.',
-      '고마워요. 오늘 비행도 잘 부탁드립니다.'
-    ]
+    tooShortReaction: ['(가볍게 고개를 끄덕이며) 네.', '알겠습니다.'],
+    noWeatherReaction: [
+      '(살짝 아쉬운 듯) 감사합니다. 혹시 목적지 날씨나 비행시간도 알 수 있을까요?',
+    ],
+    okReaction: ['수고해요. 잘 부탁드립니다.', '네, 감사합니다. 출발 준비해주세요.'],
+    goodReaction: [
+      '감사합니다. 비행 정보까지 챙겨주시니 편하네요. 잘 부탁드립니다.',
+      '고맙습니다. 날씨 정보도 알려주셔서 준비가 되는 것 같아요.',
+    ],
+    excellentReaction: [
+      '정말 감사합니다. 바쁜 일정 중에도 날씨와 비행 정보까지 세심하게 안내해주시니 마음이 편해지네요. 잘 부탁드립니다.',
+      '감사합니다, 사무장님. 비행 정보와 날씨까지 챙겨주시는 덕분에 한결 편안한 마음으로 탑승하게 됩니다.',
+    ],
   },
-  2: {
-    responses: [
-      '어, 그래요. 생수 한 병만 가져다줘요.',
-      '알겠습니다. 도착하면 연락해요.',
-      '수고요. 조용히 있을 테니 신경 쓰지 않아도 됩니다.'
+  2: { // CIP · 이재용 삼성전자 대표
+    correctTitles: ['이재용', '대표님', '대표'],
+    wrongTitleReaction: [
+      '(무표정으로) 저는 이재용입니다. 호칭 확인 부탁드려요.',
+      '(짧게) 호칭이 다른 것 같은데요.',
     ],
-    goodResponses: [
-      '오, 기억해줬군요. 역시 제주항공이에요. 생수 바로 부탁드립니다.',
-      '감사합니다. 항상 이렇게 챙겨줘서 제주항공만 타게 되는 것 같아요.',
-      '잘 부탁드립니다. 편한 비행이 될 것 같네요.'
-    ]
+    tooShortReaction: ['(노트북을 보며) 네.', '알겠어요.'],
+    noWeatherReaction: [
+      '(간결하게) 감사합니다. 서울 날씨는 어떤가요?',
+    ],
+    okReaction: ['수고요. 조용히 있을 테니 필요하면 부르겠습니다.', '알겠습니다.'],
+    goodReaction: [
+      '잘 부탁드립니다. 비행 정보까지 챙겨주시니 편하네요.',
+      '날씨 정보도 감사합니다. 편안한 비행 되길 바랍니다.',
+    ],
+    excellentReaction: [
+      '감사합니다. 비행시간과 날씨까지 바로 안내해주시니 역시 제주항공입니다. 잘 부탁드립니다.',
+      '깔끔하고 필요한 정보를 딱 맞게 전달해주셨어요. 편안한 비행이 될 것 같습니다.',
+    ],
   },
-  3: {
-    responses: [
-      'Thank you, I appreciate the warm welcome.',
-      'Thank you very much. I look forward to a pleasant flight.',
-      'Thank you. Please let me know if you need anything from me as well.'
+  3: { // AIP · 채형석 애경그룹 회장
+    correctTitles: ['채형석', '회장님', '회장'],
+    wrongTitleReaction: [
+      '(잠시 멈추며) 저는 채형석 회장입니다. 호칭을 다시 한번 확인해주시겠어요?',
+      '(조용히) 호칭이 좀 어색하네요.',
     ],
-    goodResponses: [
-      'Thank you so much. I really appreciate the bilingual greeting — it means a lot. I look forward to a comfortable flight.',
-      'How thoughtful, thank you. It\'s always a pleasure flying with Jeju Air.',
-      'Thank you, Ambassador treatment noted! I\'ll be sure to reach out if I need anything.'
-    ]
+    tooShortReaction: ['(고개를 끄덕이며) 네, 감사합니다.', '알겠어요.'],
+    noWeatherReaction: [
+      '(잠깐) 혹시 목적지 날씨도 알 수 있을까요?',
+    ],
+    okReaction: ['수고하십니다. 잘 부탁드립니다.', '감사합니다. 편안하게 있겠습니다.'],
+    goodReaction: [
+      '감사합니다. 비행 정보도 알려주시니 든든하네요. 잘 부탁드립니다.',
+      '고맙습니다. 날씨 정보까지 챙겨주시는 세심함이 좋습니다.',
+    ],
+    excellentReaction: [
+      '잘 알겠습니다. 비행시간과 날씨까지 챙겨주시니 역시 제주항공 서비스네요. 잘 부탁드립니다.',
+      '감사합니다, 사무장님. 정확한 호칭에 필요한 정보까지 — 훌륭한 응대입니다. 편안한 비행 되길 바랍니다.',
+    ],
   },
-  4: {
-    responses: [
-      '아, 네. 감사해요.',
-      '고맙습니다. 잘 부탁드려요.',
-      '처음이라 좀 설레네요, 잘 부탁드립니다.'
+  4: { // AAIP · 김이배 제주항공 대표이사
+    correctTitles: ['김이배', '대표님', '대표'],
+    wrongTitleReaction: [
+      '(살짝 어색하게 웃으며) 저는 김이배 대표입니다. 다시 한번 확인해주시겠어요?',
+      '(짧게) 호칭이 다른 것 같습니다.',
     ],
-    goodResponses: [
-      '와, 이름까지 기억해주시다니! 덕분에 첫 비즈니스가 더 특별하게 느껴져요.',
-      '감사합니다! 148번 탔는데 이렇게 챙겨주시니 더 자주 타고 싶어지네요.',
-      '정말 감사해요. 비즈니스 라이트 첫 탑승인데 기분이 너무 좋네요!'
-    ]
+    tooShortReaction: ['(고개를 끄덕이며) 네, 수고하세요.', '알겠습니다.'],
+    noWeatherReaction: [
+      '(자연스럽게) 날씨 정보도 함께 알려주시면 좋겠네요.',
+    ],
+    okReaction: ['감사합니다. 잘 부탁드립니다.', '수고하세요.'],
+    goodReaction: [
+      '감사합니다. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
+      '잘 알겠습니다. 날씨 정보도 유용하네요. 편안한 비행이 될 것 같아요.',
+    ],
+    excellentReaction: [
+      '잘했습니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 규정대로 안내해주셨어요. 잘 부탁드립니다.',
+      '훌륭합니다. JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.',
+    ],
   },
-  5: {
-    responses: [
-      '감사합니다! 편하게 좀 쉬어야겠어요.',
-      '고맙습니다. 다들 힘들었는데 이런 따뜻한 인사가 힘이 되네요.',
-      '감사합니다. 이제 좀 쉬겠습니다!'
+  5: { // JIP · 장주녀 객실본부장
+    correctTitles: ['장주녀', '본부장님', '본부장'],
+    wrongTitleReaction: [
+      '(미소 지으며) 저는 장주녀 본부장입니다. 호칭을 다시 한번 확인해주시겠어요?',
+      '(부드럽게) 호칭이 조금 다른 것 같네요.',
     ],
-    goodResponses: [
-      '와, 선수단을 이렇게 챙겨주시다니 정말 감사합니다! 원정 피로가 싹 풀리는 것 같아요.',
-      '감사합니다! 이런 인사 덕분에 다음 경기도 힘이 날 것 같아요. 잘 부탁드립니다.',
-      '고맙습니다. 선수들도 모두 기뻐할 것 같아요. 음료 부탁드립니다!'
-    ]
+    tooShortReaction: ['(고개를 끄덕이며) 네, 수고해요.', '알겠어요.'],
+    noWeatherReaction: [
+      '(친근하게) 날씨 정보도 함께 안내해주시면 좋겠어요.',
+    ],
+    okReaction: ['감사해요, 사무장님. 잘 부탁드려요.', '수고하세요.'],
+    goodReaction: [
+      '잘 하셨어요. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
+      '감사해요. 날씨도 알려주시니 편하네요. 편안한 비행 되겠어요.',
+    ],
+    excellentReaction: [
+      '훌륭합니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 JJEMS 규정대로 완벽하게 안내해주셨어요. 잘 부탁드립니다.',
+      '정말 잘 하셨어요. 자연스러우면서도 규정에 맞는 Greeting이었습니다. 앞으로도 이렇게 해주세요.',
+    ],
   },
-  6: {
-    responses: [
-      '감사합니다! 너무 설레요.',
-      '고마워요, 생일에 이런 인사 받으니 더 기분 좋네요!',
-      '와, 감사합니다. 처음이라 어떻게 해야 할지 모르겠어요!'
-    ],
-    goodResponses: [
-      '어머, 생일까지 알아주셨어요? 정말 감동이에요! 이 비행 평생 기억할 것 같아요.',
-      '와, 첫 비즈니스에 생일 축하까지! 최고의 선물이에요, 감사합니다!',
-      '너무너무 감사해요! 오늘 비행이 정말 특별해질 것 같아요!'
-    ]
-  },
-  7: {
-    responses: [
-      '네, 감사해요.',
-      '고마워요. 조용히 있을게요.',
-      '감사합니다. 잘 부탁드려요.'
-    ],
-    goodResponses: [
-      '감사해요. 조용하게 신경 써주셔서 마음이 편해요. 잘 부탁드릴게요.',
-      '고마워요. 이렇게 자연스럽게 대해주시니 오히려 편하네요.',
-      '감사합니다. 덕분에 편하게 쉴 수 있을 것 같아요.'
-    ]
-  },
-  8: {
-    responses: [
-      '아이고, 고마워요.',
-      '네, 감사합니다. 잘 앉았어요.',
-      '고마워요. 오래 탔는데 항상 이렇게 잘해줘서 좋아요.'
-    ],
-    goodResponses: [
-      '아이고, 이렇게 정성껏 인사해주니 너무 고맙네요. 10년 동안 제주항공만 타는 이유가 있어요.',
-      '고마워요 사무장님. 천천히 말해줘서 잘 들렸어요. 잘 부탁해요.',
-      '어머, 이렇게 세심하게 챙겨주다니. 항상 고맙습니다!'
-    ]
-  }
 };
 
-function scoreDemoGreeting(greeting) {
-  const g = greeting;
-  let score = 60;
+function analyzeGreeting(greeting, passenger) {
+  const g = greeting.trim();
+  const gl = g.toLowerCase();
+  const pid = passengerSelect.value;
+  const data = demoData[pid];
+
+  const issues = [];
+  let score = 50;
   const strengths = [];
-  let improvement = null;
 
-  // 호칭 확인
-  const titleWords = ['대통령님','부회장님','대사님','ambassador','고객님','선수단','어머니','씨'];
-  if (titleWords.some(w => g.toLowerCase().includes(w.toLowerCase()))) {
-    score += 10; strengths.push('적절한 직함/호칭을 사용했습니다.');
+  // 1. 호칭 검사
+  const hasCorrectTitle = data.correctTitles.some(t => gl.includes(t.toLowerCase()));
+  const hasAnyHonorific = /님|씨|장관|본부장|회장|대표|대통령/.test(gl);
+  if (hasCorrectTitle) {
+    score += 18; strengths.push('정확한 직함·호칭을 사용했습니다.');
+  } else if (hasAnyHonorific) {
+    score += 5; issues.push('wrongTitle');
   } else {
-    improvement = '승객의 직함이나 호칭을 정확히 사용하면 더 격식 있는 인사가 됩니다.';
+    issues.push('wrongTitle');
   }
 
-  // 환영 표현
-  if (g.includes('환영') || g.includes('반갑') || g.includes('welcome')) {
-    score += 8; strengths.push('따뜻한 환영 표현이 포함되었습니다.');
+  // 2. 길이 검사
+  if (g.length < 15) { issues.push('tooShort'); score -= 10; }
+
+  // 3. 비행 정보 (JJEMS 핵심 규정)
+  const hasFlightInfo = /분|시간|소요|비행|편|항공편/.test(gl);
+  if (hasFlightInfo) {
+    score += 12; strengths.push('비행 정보(소요시간)를 포함했습니다 — JJEMS 규정 준수!');
+  } else {
+    issues.push('noWeather');
   }
 
-  // 자기소개
-  if (g.includes('사무장') || g.includes('저는') || g.includes('담당')) {
-    score += 7; strengths.push('자기소개로 신뢰감을 높였습니다.');
+  // 4. 날씨 정보 (JJEMS 핵심 규정)
+  const hasWeatherInfo = /날씨|기온|도|맑|흐|비|눈|바람|weather/.test(gl);
+  if (hasWeatherInfo) {
+    score += 10; strengths.push('목적지 날씨 정보를 포함했습니다 — JJEMS 규정 준수!');
   }
 
-  // 서비스 의지
-  if (g.includes('최선') || g.includes('도움') || g.includes('편안') || g.includes('준비')) {
-    score += 8; strengths.push('서비스 의지를 명확하게 전달했습니다.');
-  }
+  // 5. 환영 표현
+  if (/환영|반갑|탑승/.test(gl)) { score += 5; strengths.push('따뜻한 환영 표현이 포함됐습니다.'); }
 
-  // 개인화
-  if (g.includes('생일') || g.includes('출장') || g.includes('원정') || g.includes('업그레이드') || g.includes('단골') || g.includes('이번에도')) {
-    score += 7; strengths.push('승객 상황을 반영한 개인화된 인사였습니다.');
-  }
+  // 6. 자기소개
+  if (/사무장|저는|담당|제가/.test(gl)) { score += 5; strengths.push('자기소개로 신뢰감을 높였습니다.'); }
 
-  score = Math.min(100, score);
+  // 7. 서비스 의지
+  if (/최선|도움|편안|준비|모시|챙|도와/.test(gl)) { score += 5; strengths.push('서비스 의지를 명확하게 전달했습니다.'); }
 
-  if (strengths.length === 0) strengths.push('인사말을 전달했습니다.');
-  if (!improvement && score < 90) improvement = '이름이나 상황을 언급해 더 개인화된 인사를 시도해보세요.';
+  score = Math.min(98, Math.max(20, score));
+
+  const improvement =
+    issues.includes('wrongTitle') ? '정확한 직함·호칭 사용이 JJEMS Greeting의 첫 번째 기본입니다.' :
+    issues.includes('tooShort')   ? '인사말이 너무 짧습니다. 비행 정보와 날씨를 포함해 풍성하게 말씀해보세요.' :
+    issues.includes('noWeather')  ? 'JJEMS 규정에 따라 비행 정보(소요시간)와 목적지 날씨를 함께 안내해야 합니다.' :
+    score < 85                    ? '날씨와 비행시간을 좀 더 구체적으로 언급하면 더욱 완성도가 높아집니다.' : null;
 
   const feedback =
     score >= 90 ? '매우 훌륭한 Greeting입니다. JJEMS 서비스 기준을 충분히 충족했습니다.' :
-    score >= 75 ? '좋은 Greeting이었습니다. 몇 가지를 보완하면 더욱 완성도 높아집니다.' :
-    score >= 60 ? '기본적인 인사는 갖췄습니다. 호칭과 개인화를 더 신경 써보세요.' :
-                  '기초부터 다시 연습해보세요. Greeting 포인트를 참고하세요.';
+    score >= 75 ? '좋은 Greeting이었습니다. 비행 정보·날씨까지 포함하면 더욱 완성됩니다.' :
+    score >= 58 ? '기본 인사는 갖췄습니다. 호칭과 비행 정보·날씨 안내를 추가해보세요.' :
+                  '호칭을 확인하고, 비행 정보와 날씨를 포함하는 연습을 해보세요.';
 
-  return { score, feedback, strengths, improvement };
+  if (strengths.length === 0) strengths.push('인사말을 전달했습니다.');
+
+  const tier = issues.includes('wrongTitle') ? 'wrongTitle'
+    : issues.includes('tooShort') ? 'tooShort'
+    : score >= 88 ? 'excellent'
+    : score >= 73 ? 'good'
+    : 'ok';
+
+  return { score, feedback, strengths, improvement, tier, hasFlightInfo, hasWeatherInfo };
 }
 
+function buildDemoInstructorComment(tier, score, passenger, greeting, analysis) {
+  const hasFlightInfo = analysis && analysis.hasFlightInfo;
+  const hasWeatherInfo = analysis && analysis.hasWeatherInfo;
+  const weatherNote = (!hasFlightInfo || !hasWeatherInfo)
+    ? ' 다음에는 비행 소요시간과 목적지 날씨도 꼭 함께 안내해주세요 — JJEMS 규정의 핵심이에요!'
+    : ' 비행 정보와 날씨까지 규정대로 포함하신 점이 특히 훌륭했어요!';
+
+  const comments = {
+    excellent: [
+      `사무장님, 정말 훌륭하셨어요! ${passenger.name}께 드린 Greeting은 JJEMS 서비스의 정수를 보여주셨어요. 정확한 호칭에 비행 정보·날씨까지 — 규정을 자연스럽게 녹여낸 완벽한 응대였습니다. 이 수준을 매 비행에서 유지하는 것이 진정한 JJEMS 서비스랍니다!`,
+      `완벽한 Greeting이었어요, 사무장님! 호칭도 정확하고 비행 정보·날씨까지 자연스럽게 포함하셨어요. 저도 교관으로서 정말 뿌듯했습니다. 앞으로도 이 감각을 잘 유지해주세요.`,
+    ],
+    good: [
+      `사무장님, 잘 하셨어요! 호칭과 기본 인사는 완벽했어요.${weatherNote}`,
+      `좋은 Greeting이었어요, 사무장님! 따뜻함도 충분히 전달됐고, 호칭도 맞으셨어요.${weatherNote}`,
+    ],
+    ok: [
+      `사무장님, 기본적인 Greeting은 갖추셨어요. 호칭을 정확히 하고, 비행 소요시간과 목적지 날씨를 포함하는 연습을 해보아요. JJEMS 규정에서 이 두 가지는 필수랍니다!`,
+      `시작은 좋았어요, 사무장님! 조금 더 다듬어 볼까요? 비행 정보와 날씨 안내를 자연스럽게 포함하면 훨씬 JJEMS답게 느껴질 거예요. 포인트를 참고해서 다시 한번 해봐요!`,
+    ],
+    tooShort: [
+      `사무장님, 인사말이 조금 짧았어요. JJEMS Greeting은 비행 소요시간과 목적지 날씨를 포함한 간단한 비행 정보 안내가 함께해야 해요. 좀 더 풀어서 다시 해볼까요?`,
+      `더 많은 이야기를 들려주셨으면 했는데 아쉬웠어요, 사무장님. 비행 정보와 날씨까지 담아서 다시 도전해보아요!`,
+    ],
+    wrongTitle: [
+      `사무장님, 호칭이 JJEMS Greeting에서 가장 중요한 첫 단추예요! 정확한 직함 사용이 승객에 대한 기본 존중이랍니다. Greeting 포인트를 확인하고 자신 있게 도전해봐요, 사무장님 할 수 있어요!`,
+      `호칭에서 조금 아쉬웠어요, 사무장님. ${passenger.name}께서 잠깐 당황하셨을 것 같아요. 정확한 호칭을 익히면 다른 부분은 이미 충분히 잘 하고 계세요. 다시 한번 도전해봐요!`,
+    ],
+  };
+  const arr = comments[tier] || comments.ok;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateExpressionFeedback(greeting, tier) {
+  const gl = greeting.toLowerCase();
+  const result = [];
+
+  if (/환영/.test(gl)) result.push({ phrase: '환영', comment: '자연스러운 환영 표현이에요. 승객이 따뜻함을 느낄 수 있어요.', good: true });
+  if (/반갑/.test(gl)) result.push({ phrase: '반갑습니다', comment: '친근하고 따뜻한 인사말이에요.', good: true });
+  if (/welcome/i.test(gl)) result.push({ phrase: 'Welcome', comment: '영어 환영 표현 — 외국어 응대 의지를 보여줍니다.', good: true });
+  if (/사무장/.test(gl)) result.push({ phrase: '사무장', comment: '자기소개를 포함해 신뢰감을 주셨어요.', good: true });
+  if (/저는/.test(gl)) result.push({ phrase: '저는', comment: '자기소개 표현 — 승객에게 담당자를 알려줬어요.', good: true });
+  if (/최선/.test(gl)) result.push({ phrase: '최선', comment: '서비스 의지를 잘 전달하는 표현이에요.', good: true });
+  if (/편안/.test(gl)) result.push({ phrase: '편안', comment: '승객의 편안함을 중심에 둔 좋은 표현이에요.', good: true });
+  if (/모시/.test(gl)) result.push({ phrase: '모시다', comment: '격식 있으면서도 진심이 담긴 서비스 표현이에요.', good: true });
+  if (/감사/.test(gl)) result.push({ phrase: '감사', comment: '승객에 대한 감사 표현 — 관계를 따뜻하게 만들어줘요.', good: true });
+  if (/수고/.test(gl)) result.push({ phrase: '수고', comment: '승객의 노고를 인정하는 공감 표현이에요.', good: true });
+  if (/생일/.test(gl)) result.push({ phrase: '생일', comment: '개인적인 정보를 활용한 훌륭한 개인화 표현이에요!', good: true });
+  if (/업그레이드/.test(gl)) result.push({ phrase: '업그레이드', comment: '특별한 상황을 인식하고 있음을 보여주는 표현이에요.', good: true });
+  if (/프라이버시/.test(gl)) result.push({ phrase: '프라이버시', comment: 'VVIP 배려 표현 — 섬세한 서비스 인식을 보여줍니다.', good: true });
+  if (/천천히/.test(gl)) result.push({ phrase: '천천히', comment: '고령 고객에 대한 배려가 담긴 훌륭한 표현이에요.', good: true });
+  if (/안내/.test(gl)) result.push({ phrase: '안내', comment: '서비스 제공 의지를 구체적으로 표현했어요.', good: true });
+
+  // Negative patterns
+  if (/어서오세요/.test(gl)) result.push({ phrase: '어서오세요', comment: '일반 매장 표현에 가까워요. "탑승을 환영합니다"가 더 품격 있습니다.', good: false });
+  if (/안녕하세요$/.test(gl.trim())) result.push({ phrase: '안녕하세요', comment: '짧은 인사만으로는 JJEMS Greeting이 완성되지 않아요. 더 풀어서 표현해보세요.', good: false });
+
+  return result.slice(0, 4);
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
 async function getDemoResponse(passenger, greeting) {
-  await new Promise(r => setTimeout(r, 1200));
+  await new Promise(r => setTimeout(r, 1100));
 
-  const data = demoData[passengerSelect.value];
-  const scoring = scoreDemoGreeting(greeting);
+  const pid = passengerSelect.value;
+  const data = demoData[pid];
+  const analysis = analyzeGreeting(greeting, passenger);
 
-  const isGood = scoring.score >= 78;
-  const pool = isGood ? data.goodResponses : data.responses;
-  const passengerResponse = pool[Math.floor(Math.random() * pool.length)];
+  const responseMap = {
+    wrongTitle: data.wrongTitleReaction,
+    tooShort:   data.tooShortReaction,
+    ok:         data.okReaction,
+    good:       data.goodReaction,
+    excellent:  data.excellentReaction,
+  };
+  // noWeather tier: 비행정보·날씨 없을 때 별도 반응
+  let responseTier = analysis.tier;
+  if (responseTier === 'ok' && !analysis.hasFlightInfo && data.noWeatherReaction) {
+    responseTier = 'noWeather';
+    responseMap.noWeather = data.noWeatherReaction;
+  }
 
-  return { passengerResponse, ...scoring };
+  const passengerResponse = pick(responseMap[responseTier] || responseMap['ok']);
+  const instructorComment = buildDemoInstructorComment(analysis.tier, analysis.score, passenger, greeting, analysis);
+  const expressionFeedback = generateExpressionFeedback(greeting, analysis.tier);
+
+  return {
+    passengerResponse,
+    score: analysis.score,
+    instructorComment,
+    expressionFeedback,
+    strengths: analysis.strengths,
+    improvement: analysis.improvement,
+  };
+}
+
+// ─── TTS (승객 목소리) ─────────────────────────────────────────────────────────
+const ttsConfig = {
+  1: { lang: 'ko-KR', pitch: 0.85, rate: 0.90 }, // 대통령 — 중후하고 차분
+  2: { lang: 'ko-KR', pitch: 0.80, rate: 0.98 }, // CIP 대표 — 낮고 간결
+  3: { lang: 'ko-KR', pitch: 0.83, rate: 0.93 }, // AIP 회장 — 품격 있게
+  4: { lang: 'ko-KR', pitch: 0.90, rate: 1.00 }, // AAIP 대표 — 자연스럽게
+  5: { lang: 'ko-KR', pitch: 1.15, rate: 0.95 }, // JIP 본부장(여성) — 밝고 차분
+};
+
+function speakPassengerResponse(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+
+  const pid = passengerSelect.value;
+  const cfg = ttsConfig[pid] || { lang: 'ko-KR', pitch: 1.0, rate: 1.0 };
+
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang  = cfg.lang;
+  utter.pitch = cfg.pitch;
+  utter.rate  = cfg.rate;
+
+  const voices = window.speechSynthesis.getVoices();
+  const match = voices.find(v => v.lang.startsWith(cfg.lang.split('-')[0]) && v.lang === cfg.lang)
+    || voices.find(v => v.lang.startsWith(cfg.lang.split('-')[0]));
+  if (match) utter.voice = match;
+
+  window.speechSynthesis.speak(utter);
+
+  const btn = document.getElementById('ttsBtn');
+  if (!btn) return;
+  btn.textContent = '🔊 재생 중...';
+  btn.disabled = true;
+  utter.onend = () => { btn.textContent = '🔊 다시 듣기'; btn.disabled = false; };
+  utter.onerror = () => { btn.textContent = '🔊 다시 듣기'; btn.disabled = false; };
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
