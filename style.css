@@ -127,7 +127,7 @@ select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,102,0
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
   color: #fff; border: none;
 }
-.profile-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.profile-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
 .grade-tag { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 20px; }
 .grade-tag.vip  { background: rgba(255,255,255,0.15); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.3); }
 .grade-tag.cip  { background: rgba(251,191,36,0.25); color: #FCD34D; border: 1px solid rgba(251,191,36,0.5); }
@@ -135,10 +135,27 @@ select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,102,0
 .grade-tag.aaip { background: rgba(99,102,241,0.25); color: #C7D2FE; border: 1px solid rgba(99,102,241,0.45); }
 .grade-tag.jip  { background: rgba(34,197,94,0.2); color: #86EFAC; border: 1px solid rgba(34,197,94,0.4); }
 .profile-avatar {
-  width: 46px; height: 46px; border-radius: 50%;
+  width: 72px; height: 72px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 23px; background: rgba(255,255,255,0.12);
-  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.12);
+  border: 3px solid rgba(255,255,255,0.3);
+  position: relative; flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  overflow: visible;
+}
+.avatar-initial {
+  font-size: 28px; font-weight: 900; color: #fff;
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  line-height: 1;
+}
+.avatar-icon-badge {
+  position: absolute; bottom: -4px; right: -4px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; backdrop-filter: blur(4px);
 }
 .passenger-name { font-size: 21px; font-weight: 900; color: #fff; margin-bottom: 4px; }
 .passenger-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 14px; }

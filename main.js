@@ -4,6 +4,7 @@
 const passengers = {
   1: {
     grade: 'VIP', gradeClass: 'vip', avatar: '🇰🇷',
+    initial: '이', avatarGrad: 'linear-gradient(135deg,#1B2A4A,#2C3E6B)', avatarIcon: '🏛️',
     name: '이재명 대통령', sub: '대한민국 제21대 대통령 · VIP',
     details: ['전/현직 대통령', '경호원 동반 가능', '좌석 1A'],
     boardingCount: 2, boardingType: '의전 탑승', seat: '1A',
@@ -22,6 +23,7 @@ const passengers = {
   },
   2: {
     grade: 'CIP', gradeClass: 'cip', avatar: '💼',
+    initial: '이', avatarGrad: 'linear-gradient(135deg,#92400E,#B45309)', avatarIcon: '🏢',
     name: '이재용 대표', sub: '삼성전자 대표 · CIP',
     details: ['매출 1위 대기업 대표', '단독 출장', '좌석 2A'],
     boardingCount: 1, boardingType: '단독 출장', seat: '2A',
@@ -40,6 +42,7 @@ const passengers = {
   },
   3: {
     grade: 'AIP', gradeClass: 'aip', avatar: '🏢',
+    initial: '채', avatarGrad: 'linear-gradient(135deg,#7C2D12,#C2410C)', avatarIcon: '👔',
     name: '채형석 회장', sub: '애경그룹 회장 · AIP',
     details: ['제주항공 모기업 회장', '비즈니스 출장', '좌석 1C'],
     boardingCount: 1, boardingType: '단독 출장', seat: '1C',
@@ -58,6 +61,7 @@ const passengers = {
   },
   4: {
     grade: 'AAIP', gradeClass: 'aaip', avatar: '✈️',
+    initial: '김', avatarGrad: 'linear-gradient(135deg,#312E81,#4338CA)', avatarIcon: '✈️',
     name: '김이배 대표', sub: '제주항공 대표이사 · AAIP',
     details: ['제주항공 대표이사', '업무 출장', '좌석 2C'],
     boardingCount: 1, boardingType: '업무 탑승', seat: '2C',
@@ -76,6 +80,7 @@ const passengers = {
   },
   5: {
     grade: 'JIP', gradeClass: 'jip', avatar: '👩‍✈️',
+    initial: '장', avatarGrad: 'linear-gradient(135deg,#065F46,#059669)', avatarIcon: '👩‍✈️',
     name: '장주녀 본부장', sub: '제주항공 객실본부장 · JIP',
     details: ['제주항공 객실본부장', '임원 탑승', '좌석 3A'],
     boardingCount: 1, boardingType: '임원 탑승', seat: '3A',
@@ -231,7 +236,15 @@ passengerSelect.addEventListener('change', () => {
 function renderPassenger(p) {
   $('gradeTag').textContent = p.grade;
   $('gradeTag').className = 'grade-tag ' + p.gradeClass;
-  $('profileAvatar').textContent = p.avatar;
+
+  // 프로필 아바타: 이니셜 + 그라디언트
+  const avatarEl = $('profileAvatar');
+  avatarEl.style.background = p.avatarGrad || '';
+  avatarEl.innerHTML = `
+    <span class="avatar-initial">${p.initial || p.avatar}</span>
+    <span class="avatar-icon-badge">${p.avatarIcon || ''}</span>
+  `;
+
   $('passengerName').textContent = p.name;
   $('passengerSub').textContent = p.sub;
   $('profileDetails').innerHTML = p.details.map(d => `<span class="detail-chip">${d}</span>`).join('');
@@ -386,7 +399,8 @@ submitBtn.addEventListener('click', async () => {
   passengerResponseCard.classList.add('hidden');
   resultArea.classList.add('hidden');
 
-  loadingAvatar.textContent = currentPassenger.avatar;
+  loadingAvatar.style.cssText = `background:${currentPassenger.avatarGrad||'var(--navy)'};border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;`;
+  loadingAvatar.innerHTML = `<span style="font-size:16px;font-weight:900;color:#fff;">${currentPassenger.initial||''}</span>`;
   loadingResponse.classList.remove('hidden');
   setStatus('loading', '응답 대기 중');
 
@@ -396,7 +410,8 @@ submitBtn.addEventListener('click', async () => {
       : await getDemoResponse(currentPassenger, greeting);
     loadingResponse.classList.add('hidden');
 
-    prAvatar.textContent = currentPassenger.avatar;
+    prAvatar.style.background = currentPassenger.avatarGrad || 'var(--navy)';
+    prAvatar.innerHTML = `<span style="font-size:20px;font-weight:900;color:#fff;">${currentPassenger.initial || currentPassenger.avatar}</span>`;
     prName.textContent = currentPassenger.name;
     passengerResponseText.textContent = result.passengerResponse;
     passengerResponseCard.classList.remove('hidden');
