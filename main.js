@@ -471,7 +471,6 @@ submitBtn.addEventListener('click', async () => {
     }
 
     // JJEMS 규정 체크리스트 (API 결과에 없을 경우 greeting 텍스트로 추론)
-    const greeting = transcriptFinal.textContent.trim();
     const gl = greeting.toLowerCase();
     const flightOk = result.hasFlightInfo ?? /분|시간|소요|편/.test(gl);
     const weatherOk = result.hasWeatherInfo ?? /날씨|기온|도|맑|흐|비|눈/.test(gl);
