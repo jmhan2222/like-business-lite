@@ -130,6 +130,7 @@ let finalTranscript = '';
 let interimTranscript = '';
 let conversationRound = 1;
 let conversationLog = [];
+let chatLoadingEl = null;
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -162,13 +163,7 @@ const editTranscriptBtn  = $('editTranscriptBtn');
 const transcriptEditArea = $('transcriptEditArea');
 const confirmEditBtn     = $('confirmEditBtn');
 
-const loadingResponse        = $('loadingResponse');
-const loadingAvatar          = $('loadingAvatar');
-const passengerResponseCard  = $('passengerResponseCard');
-const prAvatar               = $('prAvatar');
-const prName                 = $('prName');
-const passengerResponseText  = $('passengerResponseText');
-
+const chatArea         = $('chatArea');
 const resultArea       = $('resultArea');
 const scoreChip        = $('scoreChip');
 const scoreBarFill     = $('scoreBarFill');
@@ -177,21 +172,112 @@ const strengthsList       = $('strengthsList');
 const improvementBox      = $('improvementBox');
 const improvementText     = $('improvementText');
 const regulationCheckList = $('regulationCheckList');
-const conversationFeedback = $('conversationFeedback');
-const cfHintList           = $('cfHintList');
-const cfExpressionList     = $('cfExpressionList');
 
 const submitBtn = $('submitBtn');
 const resetBtn  = $('resetBtn');
 const errorBox  = $('errorBox');
 const errorText = $('errorText');
 
-const roundProgress      = $('roundProgress');
-const conversationThread = $('conversationThread');
-const continueBar        = $('continueBar');
-const continueBtn        = $('continueBtn');
-const continueBtnText    = $('continueBtnText');
-const evaluateBtn        = $('evaluateBtn');
+const roundProgress  = $('roundProgress');
+const continueBar    = $('continueBar');
+const continueBtn    = $('continueBtn');
+const continueBtnText = $('continueBtnText');
+const evaluateBtn    = $('evaluateBtn');
+
+// ─── Chat Helpers ─────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function scrollChatBottom() {
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function addRoundDivider(round, label) {
+  const div = document.createElement('div');
+  div.className = 'chat-round-divider';
+  div.innerHTML = `<span>${round}단계 · ${label}</span>`;
+  chatArea.appendChild(div);
+}
+
+function addMyBubble(greeting) {
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-mine';
+  div.innerHTML = `
+    <div class="chat-content-mine">
+      <div class="chat-bubble chat-bubble-mine"><p>${escapeHtml(greeting)}</p></div>
+    </div>
+    <span class="chat-avatar-mine">👨‍✈️</span>
+  `;
+  chatArea.appendChild(div);
+  scrollChatBottom();
+}
+
+function showLoadingBubble() {
+  const p = currentPassenger;
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-passenger';
+  div.innerHTML = `
+    <span class="chat-avatar-p" style="background:${p.avatarGrad}">
+      <span style="font-size:13px;font-weight:900;color:#fff">${p.initial}</span>
+    </span>
+    <div class="chat-bubble-loading">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+    </div>
+  `;
+  chatArea.appendChild(div);
+  chatLoadingEl = div;
+  scrollChatBottom();
+}
+
+function removeLoadingBubble() {
+  if (chatLoadingEl) { chatLoadingEl.remove(); chatLoadingEl = null; }
+}
+
+function addPassengerBubble(result) {
+  const p = currentPassenger;
+  const scoreClass = result.score >= 88 ? 'score-hi' : result.score >= 70 ? 'score-mid' : 'score-lo';
+
+  let feedbackHtml = '';
+  if (result.expressionFeedback && result.expressionFeedback.length > 0) {
+    const items = result.expressionFeedback.map(ef =>
+      `<div class="ef-item ${ef.good ? 'ef-good' : 'ef-improve'}">
+        <span class="ef-phrase">${escapeHtml(ef.phrase)}</span>
+        <span class="ef-comment">${escapeHtml(ef.comment)}</span>
+      </div>`
+    ).join('');
+    feedbackHtml = `
+      <details class="chat-inline-feedback">
+        <summary class="chat-feedback-summary">📝 표현 분석 보기</summary>
+        <div class="ef-list">${items}</div>
+      </details>`;
+  }
+
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-passenger';
+  div.innerHTML = `
+    <span class="chat-avatar-p" style="background:${p.avatarGrad}">
+      <span style="font-size:13px;font-weight:900;color:#fff">${p.initial}</span>
+    </span>
+    <div class="chat-content-p">
+      <div class="chat-bubble chat-bubble-passenger"><p>${escapeHtml(result.passengerResponse)}</p></div>
+      <div class="chat-meta-p">
+        <button class="btn-tts-chat" data-text="${escapeHtml(result.passengerResponse)}">🔊 듣기</button>
+        <span class="chat-score-tag ${scoreClass}">${result.score}점</span>
+      </div>
+      ${feedbackHtml}
+    </div>
+  `;
+  chatArea.appendChild(div);
+  scrollChatBottom();
+}
+
+chatArea.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-tts-chat');
+  if (btn) speakPassengerResponse(btn.dataset.text);
+});
 
 // ─── API Key Management ───────────────────────────────────────────────────────
 function loadApiKey() {
@@ -369,7 +455,6 @@ function startRecording() {
   setStatus('recording', '녹음 중');
 
   transcriptResult.classList.add('hidden');
-  passengerResponseCard.classList.add('hidden');
   resultArea.classList.add('hidden');
   submitBtn.disabled = true;
 }
@@ -428,61 +513,34 @@ submitBtn.addEventListener('click', async () => {
 
   submitBtn.disabled = true;
   recordBtn.disabled = true;
-  hideError();
-  passengerResponseCard.classList.add('hidden');
+  transcriptResult.classList.add('hidden');
   resultArea.classList.add('hidden');
-
-  loadingAvatar.style.cssText = `background:${currentPassenger.avatarGrad||'var(--navy)'};border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;`;
-  loadingAvatar.innerHTML = `<span style="font-size:16px;font-weight:900;color:#fff;">${currentPassenger.initial||''}</span>`;
-  loadingResponse.classList.remove('hidden');
+  hideError();
   setStatus('loading', '응답 대기 중');
+
+  // 채팅에 내 응대 추가
+  addMyBubble(greeting);
+  showLoadingBubble();
 
   try {
     const result = apiKey
       ? await callClaudeAPI(currentPassenger, greeting)
       : await getDemoResponse(currentPassenger, greeting);
-    loadingResponse.classList.add('hidden');
 
-    prAvatar.style.background = currentPassenger.avatarGrad || 'var(--navy)';
-    prAvatar.innerHTML = `<span style="font-size:20px;font-weight:900;color:#fff;">${currentPassenger.initial || currentPassenger.avatar}</span>`;
-    prName.textContent = currentPassenger.name;
-    passengerResponseText.textContent = result.passengerResponse;
-    passengerResponseCard.classList.remove('hidden');
+    removeLoadingBubble();
+    addPassengerBubble(result);
 
-    const ttsBtn = document.getElementById('ttsBtn');
-    if (ttsBtn) {
-      ttsBtn.classList.remove('hidden');
-      ttsBtn.textContent = '🔊 다시 듣기';
-      ttsBtn.disabled = false;
-    }
+    // TTS 자동 재생
     const trySpeak = () => speakPassengerResponse(result.passengerResponse);
     if (window.speechSynthesis) {
       if (window.speechSynthesis.getVoices().length) trySpeak();
       else window.speechSynthesis.onvoiceschanged = trySpeak;
     }
 
-    // 대화 중 피드백 (Greeting 포인트 요약 + 표현 분석)
-    cfHintList.innerHTML = roundConfigs[conversationRound - 1].getHints(currentPassenger).slice(0, 3).map(h =>
-      `<li>${h}</li>`
-    ).join('');
-
-    if (result.expressionFeedback && result.expressionFeedback.length > 0) {
-      cfExpressionList.innerHTML = result.expressionFeedback.map(ef =>
-        `<div class="ef-item ${ef.good ? 'ef-good' : 'ef-improve'}">
-          <span class="ef-phrase">${ef.phrase}</span>
-          <span class="ef-comment">${ef.comment}</span>
-        </div>`
-      ).join('');
-    } else {
-      cfExpressionList.innerHTML = '<p class="cf-empty">표현 분석 데이터가 없습니다.</p>';
-    }
-    conversationFeedback.classList.remove('hidden');
-
-    // 대화 로그에 저장 + 스레드에 추가
+    // 대화 로그 저장
     conversationLog.push({ round: conversationRound, label: roundConfigs[conversationRound - 1].label, greeting, result });
-    appendToConversationThread(greeting, result, conversationRound);
 
-    // 마지막 라운드면 바로 평가 표시, 아니면 계속 버튼
+    // 마지막 라운드면 평가, 아니면 계속 버튼
     if (conversationRound >= MAX_ROUNDS) {
       continueBtn.classList.add('hidden');
       continueBar.classList.remove('hidden');
@@ -494,7 +552,7 @@ submitBtn.addEventListener('click', async () => {
       setStatus('responded', '승객 응답 완료');
     }
   } catch (err) {
-    loadingResponse.classList.add('hidden');
+    removeLoadingBubble();
     showError(err.message || '오류가 발생했습니다. 다시 시도해주세요.');
     setStatus('recorded', '녹음 완료');
     submitBtn.disabled = false;
@@ -516,8 +574,6 @@ continueBtn.addEventListener('click', () => {
   confirmEditBtn.classList.add('hidden');
   editTranscriptBtn.style.display = '';
 
-  passengerResponseCard.classList.add('hidden');
-  conversationFeedback.classList.add('hidden');
   continueBar.classList.add('hidden');
   resultArea.classList.add('hidden');
 
@@ -526,9 +582,11 @@ continueBtn.addEventListener('click', () => {
   recordBtn.disabled = false;
   submitBtn.disabled = true;
 
-  const ttsBtn = document.getElementById('ttsBtn');
-  if (ttsBtn) ttsBtn.classList.add('hidden');
   if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  // 채팅에 라운드 구분선 추가
+  addRoundDivider(conversationRound, roundConfigs[conversationRound - 1].label);
+  scrollChatBottom();
 
   setStatus('waiting', '대기 중');
   hideError();
@@ -561,6 +619,7 @@ function resetTrainingState() {
   interimTranscript = '';
   conversationRound = 1;
   conversationLog = [];
+  chatLoadingEl = null;
 
   recordBtn.classList.remove('active');
   recordBtn.disabled = false;
@@ -577,19 +636,13 @@ function resetTrainingState() {
   confirmEditBtn.classList.add('hidden');
   editTranscriptBtn.style.display = '';
 
-  loadingResponse.classList.add('hidden');
-  passengerResponseCard.classList.add('hidden');
-  conversationFeedback.classList.add('hidden');
   continueBar.classList.add('hidden');
   continueBtn.classList.remove('hidden');
   resultArea.classList.add('hidden');
   roundProgress.classList.add('hidden');
-  conversationThread.classList.add('hidden');
-  conversationThread.innerHTML = '';
+  chatArea.innerHTML = '';
   if (regulationCheckList) regulationCheckList.innerHTML = '';
 
-  const ttsBtn = document.getElementById('ttsBtn');
-  if (ttsBtn) ttsBtn.classList.add('hidden');
   if (window.speechSynthesis) window.speechSynthesis.cancel();
 
   submitBtn.disabled = true;
@@ -620,30 +673,6 @@ function updateRoundUI(round) {
   });
 }
 
-function appendToConversationThread(greeting, result, round) {
-  const cfg = roundConfigs[round - 1];
-  const p = currentPassenger;
-  const scoreClass = result.score >= 88 ? 'score-hi' : result.score >= 70 ? 'score-mid' : 'score-lo';
-
-  const entry = document.createElement('div');
-  entry.className = 'ct-exchange';
-  entry.innerHTML = `
-    <div class="ct-round-label">${round}단계 · ${cfg.label}</div>
-    <div class="ct-my-bubble">
-      <span class="ct-my-icon">👨‍✈️</span>
-      <span class="ct-my-text">${greeting}</span>
-      <span class="ct-score-tag ${scoreClass}">${result.score}점</span>
-    </div>
-    <div class="ct-passenger-bubble">
-      <span class="ct-p-avatar" style="background:${p.avatarGrad}">
-        <span style="font-size:12px;font-weight:900;color:#fff;">${p.initial}</span>
-      </span>
-      <span class="ct-p-text">${result.passengerResponse}</span>
-    </div>
-  `;
-  conversationThread.appendChild(entry);
-  conversationThread.classList.remove('hidden');
-}
 
 function showEvaluation(result, greeting) {
   const pct = Math.min(100, Math.max(0, result.score));
@@ -701,48 +730,54 @@ function hideError() {
 function buildSystemPrompt(passenger) {
   const cfg = roundConfigs[conversationRound - 1];
   const situation = cfg.getSituation(passenger);
-  return `당신은 제주항공의 15년 경력 객실서비스교관 박지현 수석교관입니다. 전직 국제선 객실사무장 출신으로, JJEMS 서비스 시스템을 직접 설계한 전문가입니다.
 
-당신은 두 가지 역할을 동시에 수행합니다.
+  // 이전 대화 맥락을 시스템 프롬프트에 포함
+  let priorCtx = '';
+  if (conversationLog.length > 0) {
+    priorCtx = '\n\n[이전 대화 기록 — 맥락 참고]\n' +
+      conversationLog.map(e =>
+        `• ${e.round}단계(${e.label}): 사무장 → "${e.greeting}" / ${passenger.name} → "${e.result.passengerResponse}"`
+      ).join('\n');
+  }
 
-[역할 1: 승객]
+  return `제주항공 JJEMS 비즈니스 라이트 Greeting 훈련 시뮬레이터입니다.
+
+[승객 역할: ${passenger.name}]
 ${passenger.persona}
-현재 상황: ${situation}
-객실사무장의 응대를 듣고 승객으로서 자연스럽고 짧게 반응하십시오 (1~3문장).
+현재 상황: ${situation}${priorCtx}
 
-[역할 2: 박지현 교관의 평가]
-따뜻하고 격려적인 멘토 스타일로 교육합니다. 항상 "사무장님"이라고 부르며, 잘한 점을 먼저 칭찬하고 개선점을 부드럽게 제안합니다. 전문적이지만 다정한 어조를 유지하세요.
+▶ 승객 응답 규칙
+- 방금 받은 객실사무장의 응대에 자연스럽고 짧게 반응하세요 (1~2문장)
+- 이전 대화가 있다면 자연스럽게 맥락을 이어가세요 (예: 2단계에서는 음료/서비스를 주문, 3단계에서는 작별 인사)
+- 호칭 오류는 직접 지적하지 않습니다
+- 응대 품질에 따라 반응 온도만 달라집니다 (무뚝뚝 ↔ 따뜻하고 만족)
 
-현재 훈련 단계: ${cfg.label} (${conversationRound}/${MAX_ROUNDS})
-승객 등급: ${passenger.grade} (${passenger.name})
-평가 기준:
-- 직함·호칭의 정확성
-- 개인화 (이름, 상황 반영)
-- 품격과 어조
-- 진심과 자연스러움
-- JJEMS 서비스 기준 부합 여부
-- 표현의 구체성과 적절성
+[교관 역할: 박지현 수석교관]
+제주항공 15년 경력, 전직 국제선 객실사무장. 따뜻한 멘토 스타일.
+"사무장님"으로 호칭, 잘한 점 먼저 칭찬 → 개선점 부드럽게 제안.
 
-승객 반응: JJEMS 응대는 절대 호칭 오류를 지적하거나 서비스 평가를 하지 않습니다. 응대 내용에 따라 자연스럽게 반응하되 온도 차이만 표현합니다.
+현재 단계: ${conversationRound}/${MAX_ROUNDS} — ${cfg.label}
+승객: ${passenger.grade} ${passenger.name}
 
-반드시 아래 JSON 형식으로만 응답하십시오 (다른 텍스트 없음):
+평가 기준: 정확한 호칭 | 비행 소요시간 안내(JJEMS 핵심) | 날씨 안내(JJEMS 핵심) | 자연스러운 어조 | 개인화
+
+반드시 아래 JSON 형식으로만 응답 (다른 텍스트 없음):
 {
-  "passengerResponse": "승객의 자연스러운 반응 (1~2문장, 호칭 지적 없음)",
-  "score": 0~100 사이 정수,
-  "instructorComment": "박지현 교관으로서의 따뜻하고 전문적인 학습 피드백 (사무장님으로 호칭, 2~3문장)",
-  "expressionFeedback": [
-    { "phrase": "사무장이 실제 사용한 특정 표현", "comment": "이 표현에 대한 교관의 짧은 코멘트", "good": true 또는 false }
-  ],
+  "passengerResponse": "승객의 자연스러운 반응 (이전 맥락 연결, 1~2문장, 호칭 지적 없음)",
+  "score": 정수(0~100),
+  "instructorComment": "교관의 따뜻한 피드백 (사무장님 호칭, 2~3문장)",
+  "expressionFeedback": [{"phrase": "사무장이 실제 사용한 표현", "comment": "짧은 코멘트", "good": true 또는 false}],
   "strengths": ["잘한 점 1", "잘한 점 2"],
-  "improvement": "개선할 점 한 문장 또는 null",
-  "hasFlightInfo": true 또는 false (비행 소요시간 언급 여부),
-  "hasWeatherInfo": true 또는 false (날씨 정보 언급 여부),
-  "hasTitleCorrect": true 또는 false (정확한 직함 사용 여부)
+  "improvement": "개선점 한 문장 또는 null",
+  "hasFlightInfo": true 또는 false,
+  "hasWeatherInfo": true 또는 false,
+  "hasTitleCorrect": true 또는 false
 }`;
 }
 
 async function callClaudeAPI(passenger, greeting) {
   const apiKey = localStorage.getItem('anthropic_api_key');
+  const cfg = roundConfigs[conversationRound - 1];
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -757,11 +792,7 @@ async function callClaudeAPI(passenger, greeting) {
       max_tokens: 900,
       system: buildSystemPrompt(passenger),
       messages: [
-        ...conversationLog.map(entry => ([
-          { role: 'user', content: `[${entry.label}] 객실사무장의 응대: "${entry.greeting}"` },
-          { role: 'assistant', content: JSON.stringify(entry.result) }
-        ])).flat(),
-        { role: 'user', content: `[${roundConfigs[conversationRound - 1].label}] 객실사무장의 응대: "${greeting}"` }
+        { role: 'user', content: `[${conversationRound}단계 - ${cfg.label}]\n객실사무장의 응대: "${greeting}"` }
       ]
     })
   });
@@ -788,84 +819,98 @@ function parseJSON(text) {
 }
 
 // ─── Demo Mode ────────────────────────────────────────────────────────────────
-// 승객 반응: JJEMS 인사는 호칭 오류를 지적하지 않음 — 자연스럽게 반응
-// 점수에 따라 반응 온도가 달라짐 (brief → ok → good → excellent)
 const demoData = {
   1: { // VIP · 이재명 대통령
     correctTitles: ['대통령님'],
-    briefReaction: [
-      '(간단히 고개를 끄덕이며) 네, 감사합니다.',
-      '(조용히) 알겠습니다.',
-    ],
-    okReaction: [
-      '수고해요. 잘 부탁드립니다.',
-      '고맙습니다. 편안하게 가겠습니다.',
-    ],
-    goodReaction: [
-      '감사합니다. 비행 정보까지 챙겨주시니 마음이 놓이네요. 잘 부탁드립니다.',
-      '고맙습니다. 날씨 정보도 알려주셔서 준비가 되는 것 같아요.',
-    ],
-    excellentReaction: [
-      '정말 감사합니다. 바쁜 일정 중에도 비행 정보와 날씨까지 세심하게 안내해주시니 마음이 편해지네요. 잘 부탁드립니다.',
-      '감사합니다, 사무장님. 필요한 정보를 자연스럽게 전달해주시니 한결 편안한 마음으로 탑승하게 됩니다.',
-    ],
+    roundReactions: {
+      1: { // 탑승 인사
+        brief:     ['(간단히 고개를 끄덕이며) 네, 감사합니다.', '(조용히) 알겠습니다.'],
+        ok:        ['수고해요. 잘 부탁드립니다.', '고맙습니다. 편안하게 가겠습니다.'],
+        good:      ['감사합니다. 비행 정보까지 챙겨주시니 마음이 놓이네요.', '고맙습니다. 날씨 정보도 알려주셔서 준비가 됩니다.'],
+        excellent: ['감사합니다. 비행 정보와 날씨까지 세심하게 안내해주시니 한결 편해지네요. 잘 부탁드립니다.', '필요한 정보를 자연스럽게 전달해주시니 편안한 마음으로 탑승하게 됩니다.'],
+      },
+      2: { // 서비스 안내
+        brief:     ['(계속 서류를 보며) 됐어요.', '(짧게) 물 한 잔.'],
+        ok:        ['물 한 잔 주세요.', '커피 있나요?'],
+        good:      ['아메리카노 한 잔 부탁드릴게요. 감사합니다.', '따뜻한 녹차 있으면 좋겠네요. 잘 부탁드립니다.'],
+        excellent: ['아메리카노 한 잔 부탁드립니다. 필요한 것 있으면 바로 말씀드릴게요. 감사합니다.', '커피 한 잔 주세요. 세심하게 챙겨주시니 감사합니다.'],
+      },
+      3: { // 마무리 인사
+        brief:     ['(고개를 끄덕이며) 네.', '알겠어요.'],
+        ok:        ['수고하셨습니다.', '감사합니다.'],
+        good:      ['수고하셨어요. 덕분에 편안한 비행이었습니다.', '감사합니다. 잘 돌봐주셨어요.'],
+        excellent: ['정말 감사합니다. 덕분에 아주 편안한 비행이었어요. 수고하셨습니다.', '사무장님 덕분에 쾌적한 비행이었습니다. 수고하셨어요.'],
+      },
+    },
   },
   2: { // CIP · 이재용 삼성전자 대표
     correctTitles: ['이재용', '대표님', '대표'],
-    briefReaction: [
-      '(노트북을 보며) 네.',
-      '(짧게) 알겠어요.',
-    ],
-    okReaction: [
-      '조용히 있을 테니 필요하면 부르겠습니다.',
-      '알겠습니다. 수고하세요.',
-    ],
-    goodReaction: [
-      '잘 부탁드립니다. 비행 정보까지 챙겨주시니 편하네요.',
-      '날씨 정보도 감사합니다. 편안한 비행이 되겠네요.',
-    ],
-    excellentReaction: [
-      '감사합니다. 비행시간과 날씨까지 바로 안내해주시니 역시 제주항공입니다. 잘 부탁드립니다.',
-      '필요한 정보를 딱 맞게 전달해주셨어요. 편안한 비행이 될 것 같습니다.',
-    ],
+    roundReactions: {
+      1: {
+        brief:     ['(노트북을 보며) 네.', '(짧게) 알겠어요.'],
+        ok:        ['조용히 있을 테니 필요하면 부르겠습니다.', '알겠습니다. 수고하세요.'],
+        good:      ['잘 부탁드립니다. 비행 정보까지 챙겨주시니 편하네요.', '날씨 정보도 감사합니다.'],
+        excellent: ['감사합니다. 비행시간과 날씨까지 바로 안내해주시니 역시 제주항공입니다. 잘 부탁드립니다.', '필요한 정보를 딱 맞게 전달해주셨어요. 편안한 비행이 될 것 같습니다.'],
+      },
+      2: {
+        brief:     ['(화면을 보며) 됩니다.', '(짧게) 아무거나요.'],
+        ok:        ['커피 주세요.', '물이면 됩니다.'],
+        good:      ['아메리카노 부탁드립니다. 감사합니다.', '따뜻한 커피 한 잔이면 충분합니다. 감사해요.'],
+        excellent: ['아메리카노 한 잔 주세요. 필요하면 다시 부르겠습니다. 수고하세요.', '커피 한 잔 부탁드립니다. 자연스럽게 안내해주시니 감사하네요.'],
+      },
+      3: {
+        brief:     ['(짧게 고개를 끄덕이며)', '네.'],
+        ok:        ['수고하셨습니다.', '감사합니다.'],
+        good:      ['고맙습니다. 편안한 비행이었어요.', '수고하셨습니다. 잘 서비스해주셨네요.'],
+        excellent: ['감사합니다. 쾌적한 비행이었어요. 수고하셨습니다.', '비행 내내 잘 챙겨주셨어요. 감사합니다.'],
+      },
+    },
   },
   3: { // AIP · 채형석 애경그룹 회장
     correctTitles: ['채형석', '회장님', '회장'],
-    briefReaction: [
-      '(고개를 끄덕이며) 네, 감사합니다.',
-      '알겠어요.',
-    ],
-    okReaction: [
-      '수고하십니다. 잘 부탁드립니다.',
-      '감사합니다. 편안하게 있겠습니다.',
-    ],
-    goodReaction: [
-      '감사합니다. 비행 정보도 알려주시니 든든하네요. 잘 부탁드립니다.',
-      '고맙습니다. 날씨 정보까지 세심하게 챙겨주시는군요.',
-    ],
-    excellentReaction: [
-      '잘 알겠습니다. 비행시간과 날씨까지 챙겨주시니 역시 제주항공이에요. 잘 부탁드립니다.',
-      '감사합니다, 사무장님. 필요한 정보를 자연스럽게 전달해주셨어요. 편안한 비행 되길 바랍니다.',
-    ],
+    roundReactions: {
+      1: {
+        brief:     ['(고개를 끄덕이며) 네, 감사합니다.', '알겠어요.'],
+        ok:        ['수고하십니다. 잘 부탁드립니다.', '감사합니다. 편안하게 있겠습니다.'],
+        good:      ['감사합니다. 비행 정보도 알려주시니 든든하네요.', '고맙습니다. 날씨 정보까지 세심하게 챙겨주시는군요.'],
+        excellent: ['잘 알겠습니다. 비행시간과 날씨까지 챙겨주시니 역시 제주항공이에요. 잘 부탁드립니다.', '필요한 정보를 자연스럽게 전달해주셨어요. 감사합니다.'],
+      },
+      2: {
+        brief:     ['(창 밖을 보며) 됩니다.', '(짧게) 주스.'],
+        ok:        ['오렌지 주스 주세요.', '따뜻한 차 있나요?'],
+        good:      ['따뜻한 녹차 한 잔 부탁드릴게요. 감사합니다.', '오렌지 주스 주세요. 잘 챙겨주시네요.'],
+        excellent: ['녹차 한 잔 부탁드립니다. 세심하게 안내해주시니 감사합니다. 더 필요하면 말씀드리겠습니다.', '따뜻한 차 한 잔 주세요. 자연스러운 안내 감사합니다.'],
+      },
+      3: {
+        brief:     ['(고개를 끄덕이며) 수고요.', '네.'],
+        ok:        ['감사합니다.', '수고하셨습니다.'],
+        good:      ['수고하셨어요. 편안한 비행이었습니다.', '감사합니다. 잘 모셔주셨어요.'],
+        excellent: ['감사합니다. 덕분에 아주 편안한 비행이었어요. 수고하셨습니다.', '비행 내내 세심하게 챙겨주셔서 감사합니다. 수고하셨어요.'],
+      },
+    },
   },
   4: { // AAIP · 김이배 제주항공 대표이사
     correctTitles: ['김이배', '대표님', '대표'],
-    briefReaction: [
-      '(고개를 끄덕이며) 네, 수고하세요.',
-      '알겠습니다.',
-    ],
-    okReaction: [
-      '감사합니다. 잘 부탁드립니다.',
-      '수고하세요.',
-    ],
-    goodReaction: [
-      '감사합니다. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
-      '날씨 정보도 유용합니다. 편안한 비행이 될 것 같아요.',
-    ],
-    excellentReaction: [
-      '잘 했어요, 사무장님. 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 잘 부탁드립니다.',
-      'JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.',
-    ],
+    roundReactions: {
+      1: {
+        brief:     ['(고개를 끄덕이며) 네, 수고하세요.', '알겠습니다.'],
+        ok:        ['감사합니다. 잘 부탁드립니다.', '수고하세요.'],
+        good:      ['감사합니다. 비행 정보까지 챙겨주시니 좋네요.', '날씨 정보도 유용합니다. 편안한 비행이 될 것 같아요.'],
+        excellent: ['잘 했어요. 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 잘 부탁드립니다.', 'JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.'],
+      },
+      2: {
+        brief:     ['(문서를 보며) 됩니다.', '물 주세요.'],
+        ok:        ['아메리카노 주세요.', '따뜻한 차 한 잔 부탁드립니다.'],
+        good:      ['아메리카노 한 잔 주세요. 감사합니다.', '커피 한 잔 부탁드릴게요. 잘 챙겨주시네요.'],
+        excellent: ['아메리카노 주세요. 자연스럽게 안내해주셔서 감사합니다. 더 필요하면 말씀드리겠습니다.', '커피 한 잔 부탁드립니다. 직원들이 잘 훈련되어 있어 다행이에요.'],
+      },
+      3: {
+        brief:     ['(짧게) 수고요.', '네, 감사합니다.'],
+        ok:        ['수고하셨습니다.', '감사합니다.'],
+        good:      ['수고하셨어요. 편안한 비행이었습니다.', '잘 모셔주셨어요. 감사합니다.'],
+        excellent: ['수고하셨습니다. 비행 내내 자연스럽고 프로페셔널하게 잘 해주셨어요.', '편안한 비행이었습니다. 앞으로도 이렇게 해주시면 됩니다. 감사합니다.'],
+      },
+    },
   },
 };
 
@@ -1011,13 +1056,12 @@ async function getDemoResponse(passenger, greeting) {
   const data = demoData[pid];
   const analysis = analyzeGreeting(greeting, passenger);
 
-  // 승객은 호칭 오류를 지적하지 않음 — 점수 기반으로 자연스러운 온도 차이만 표현
-  const responseTier =
-    analysis.score >= 88 ? 'excellent' :
-    analysis.score >= 70 ? 'good' :
-    analysis.score >= 50 ? 'ok' : 'brief';
+  const tier = analysis.score >= 88 ? 'excellent' : analysis.score >= 70 ? 'good' : analysis.score >= 50 ? 'ok' : 'brief';
 
-  const passengerResponse = pick(data[responseTier + 'Reaction'] || data.okReaction);
+  // 라운드별 자연스러운 반응 선택
+  const roundPool = data.roundReactions?.[conversationRound] || data.roundReactions?.[1];
+  const passengerResponse = pick(roundPool?.[tier] || roundPool?.ok);
+
   const instructorComment = buildDemoInstructorComment(analysis.tier, analysis.score, passenger, greeting, analysis);
   const expressionFeedback = generateExpressionFeedback(greeting, analysis.tier);
 
@@ -1062,12 +1106,15 @@ function speakPassengerResponse(text) {
 
   window.speechSynthesis.speak(utter);
 
-  const btn = document.getElementById('ttsBtn');
-  if (!btn) return;
-  btn.textContent = '🔊 재생 중...';
-  btn.disabled = true;
-  utter.onend = () => { btn.textContent = '🔊 다시 듣기'; btn.disabled = false; };
-  utter.onerror = () => { btn.textContent = '🔊 다시 듣기'; btn.disabled = false; };
+  // 채팅에서 현재 재생 중인 TTS 버튼 상태 업데이트
+  const activeBtns = chatArea.querySelectorAll('.btn-tts-chat');
+  const matchBtn = [...activeBtns].find(b => b.dataset.text === text);
+  if (matchBtn) {
+    matchBtn.textContent = '🔊 재생 중...';
+    matchBtn.disabled = true;
+    utter.onend = () => { matchBtn.textContent = '🔊 듣기'; matchBtn.disabled = false; };
+    utter.onerror = () => { matchBtn.textContent = '🔊 듣기'; matchBtn.disabled = false; };
+  }
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────

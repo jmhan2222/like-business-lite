@@ -116,113 +116,65 @@
           </div>
         </div>
 
-        <!-- 대화 스레드 (이전 라운드 누적 기록) -->
-        <div id="conversationThread" class="conversation-thread hidden"></div>
-
-        <!-- 훈련 그리드: 녹음 + 탑승상황 나란히 -->
-        <div class="training-grid">
-
-          <!-- 녹음 + 제출 -->
-          <div class="recording-area card">
-            <p id="recordingGuide" class="recording-guide">마이크 버튼을 눌러 Greeting을 시작하세요</p>
-
-            <div class="recording-controls">
-              <button id="recordBtn" class="btn btn-record">
-                <span class="btn-icon">🎤</span>
-                <span id="recordBtnText">녹음 시작</span>
-              </button>
-              <button id="submitBtn" class="btn btn-submit" disabled>
-                <span class="btn-icon">📤</span>
-                응대 제출
-              </button>
+        <!-- 탑승 상황 + JJEMS Greeting 포인트 -->
+        <div class="situation-card card" id="situationCard">
+          <div class="situation-badge" id="situationBadgeEl">탑승 상황</div>
+          <p id="situationText" class="situation-text"></p>
+          <div class="hint-box">
+            <div class="hint-header">
+              <span class="hint-label">✨ JJEMS Greeting 포인트</span>
+              <span class="hint-grade-tag" id="hintGradeTag"></span>
             </div>
-
-            <!-- 녹음 중 애니메이션 -->
-            <div id="recordingIndicator" class="recording-indicator hidden">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-              <span class="recording-text">녹음 중...</span>
-            </div>
-
-            <!-- 실시간 인식 텍스트 -->
-            <div id="liveTranscriptBox" class="live-transcript-box hidden">
-              <div class="live-transcript-label">🎙 인식 중</div>
-              <p id="liveTranscriptText" class="live-transcript-text"></p>
-            </div>
-
-            <!-- 음성인식 미지원 시 텍스트 입력 -->
-            <div id="fallbackInput" class="fallback-input hidden">
-              <label class="fallback-label">이 브라우저는 음성인식을 지원하지 않습니다. 직접 입력하세요.</label>
-              <textarea id="fallbackText" class="fallback-textarea" placeholder="인사말을 직접 입력하세요..."></textarea>
-            </div>
+            <ul id="hintList" class="hint-list"></ul>
+            <div class="hint-grade-note" id="hintGradeNote"></div>
           </div>
-
-          <!-- 탑승 상황 + JJEMS Greeting 포인트 -->
-          <div class="situation-card card" id="situationCard">
-            <div class="situation-badge">탑승 상황</div>
-            <p id="situationText" class="situation-text"></p>
-            <div class="hint-box">
-              <div class="hint-header">
-                <span class="hint-label">✨ JJEMS Greeting 포인트</span>
-                <span class="hint-grade-tag" id="hintGradeTag"></span>
-              </div>
-              <ul id="hintList" class="hint-list"></ul>
-              <div class="hint-grade-note" id="hintGradeNote"></div>
-            </div>
-          </div>
-
-        </div><!-- /training-grid -->
-
-        <!-- 내 인사말 결과 -->
-        <div id="transcriptResult" class="transcript-result card hidden">
-          <div class="transcript-header">
-            <span class="t-icon">👨‍✈️</span>
-            <span class="t-title">객실사무장 인사말</span>
-          </div>
-          <p id="transcriptFinal" class="transcript-final"></p>
-          <button id="editTranscriptBtn" class="btn-text-link">✏️ 수정하기</button>
-          <textarea id="transcriptEditArea" class="transcript-edit hidden" rows="3"></textarea>
-          <button id="confirmEditBtn" class="btn btn-api hidden" style="margin-top:8px">수정 완료</button>
         </div>
 
-        <!-- 승객 응답 로딩 -->
-        <div id="loadingResponse" class="loading-response hidden">
-          <span class="loading-avatar" id="loadingAvatar"></span>
-          <div class="loading-dots">
-            <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
-          </div>
-          <span class="loading-text">승객이 응답하는 중...</span>
-        </div>
+        <!-- 채팅 영역 (대화 누적) -->
+        <div id="chatArea" class="chat-area"></div>
 
-        <!-- 승객 응답 말풍선 -->
-        <div id="passengerResponseCard" class="passenger-response-card card hidden">
-          <div class="pr-header">
-            <span id="prAvatar" class="pr-avatar"></span>
-            <div class="pr-name-wrap">
-              <span id="prName" class="pr-name"></span>
-              <span class="pr-tag">승객 응답</span>
-            </div>
-          </div>
-          <div class="pr-bubble">
-            <p id="passengerResponseText" class="pr-text"></p>
-          </div>
-          <button id="ttsBtn" class="btn-tts hidden" onclick="speakPassengerResponse(document.getElementById('passengerResponseText').textContent)">🔊 다시 듣기</button>
-        </div>
+        <!-- 녹음 입력 카드 -->
+        <div class="chat-input-card card">
+          <p id="recordingGuide" class="recording-guide">마이크 버튼을 눌러 Greeting을 시작하세요</p>
 
-        <!-- 대화 중 피드백 (승객 응답 직후: Greeting 포인트 요약 + 표현 분석) -->
-        <div id="conversationFeedback" class="conversation-feedback card hidden">
-          <div class="cf-header">
-            <span class="cf-icon">💬</span>
-            <span class="cf-title">대화 중 피드백</span>
+          <div class="recording-controls">
+            <button id="recordBtn" class="btn btn-record">
+              <span class="btn-icon">🎤</span>
+              <span id="recordBtnText">녹음 시작</span>
+            </button>
+            <button id="submitBtn" class="btn btn-submit" disabled>
+              <span class="btn-icon">📤</span>
+              응대 제출
+            </button>
           </div>
-          <div class="cf-grid">
-            <div class="cf-col">
-              <div class="cf-subtitle">✨ Greeting 포인트 요약</div>
-              <ul id="cfHintList" class="cf-hint-list"></ul>
+
+          <!-- 녹음 중 애니메이션 -->
+          <div id="recordingIndicator" class="recording-indicator hidden">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="recording-text">녹음 중...</span>
+          </div>
+
+          <!-- 실시간 인식 텍스트 -->
+          <div id="liveTranscriptBox" class="live-transcript-box hidden">
+            <div class="live-transcript-label">🎙 인식 중</div>
+            <p id="liveTranscriptText" class="live-transcript-text"></p>
+          </div>
+
+          <!-- 음성인식 미지원 시 텍스트 입력 -->
+          <div id="fallbackInput" class="fallback-input hidden">
+            <label class="fallback-label">이 브라우저는 음성인식을 지원하지 않습니다. 직접 입력하세요.</label>
+            <textarea id="fallbackText" class="fallback-textarea" placeholder="인사말을 직접 입력하세요..."></textarea>
+          </div>
+
+          <!-- 인식된 인사말 미리보기 -->
+          <div id="transcriptResult" class="transcript-result-inline hidden">
+            <div class="tri-row">
+              <span class="tri-label">👨‍✈️ 인식된 인사말</span>
+              <button id="editTranscriptBtn" class="btn-text-link">✏️ 수정</button>
             </div>
-            <div class="cf-col">
-              <div class="cf-subtitle">📝 내 표현 분석</div>
-              <div id="cfExpressionList" class="ef-list"></div>
-            </div>
+            <p id="transcriptFinal" class="tri-text"></p>
+            <textarea id="transcriptEditArea" class="transcript-edit hidden" rows="3"></textarea>
+            <button id="confirmEditBtn" class="btn btn-api hidden" style="margin-top:8px">수정 완료</button>
           </div>
         </div>
 
@@ -243,7 +195,7 @@
           <div class="instructor-header">
             <div class="instructor-avatar-wrap">👩‍✈️</div>
             <div class="instructor-info">
-              <span class="instructor-name">객실서비스교관 피드백</span>
+              <span class="instructor-name">피드백</span>
               <span class="instructor-sub">JJEMS Greeting 학습 정리</span>
             </div>
             <div class="score-chip" id="scoreChip"></div>
