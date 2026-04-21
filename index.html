@@ -49,7 +49,6 @@
             <option value="2">CIP · 이재용 삼성전자 대표 (100대 대기업 회장)</option>
             <option value="3">AIP · 채형석 애경그룹 회장 (모기업 회장)</option>
             <option value="4">AAIP · 김이배 제주항공 대표이사 (계열사 대표)</option>
-            <option value="5">JIP · 장주녀 객실본부장 (제주항공 임원)</option>
           </select>
         </div>
       </section>
@@ -98,6 +97,27 @@
           <span class="status-label">훈련 상태</span>
           <span id="statusBadge" class="status-badge waiting">대기 중</span>
         </div>
+
+        <!-- 라운드 진행 표시 -->
+        <div id="roundProgress" class="round-progress hidden">
+          <div class="rp-step active" id="rpStep1">
+            <span class="rp-num">1</span>
+            <span class="rp-label">탑승 인사</span>
+          </div>
+          <div class="rp-line"></div>
+          <div class="rp-step" id="rpStep2">
+            <span class="rp-num">2</span>
+            <span class="rp-label">서비스 안내</span>
+          </div>
+          <div class="rp-line"></div>
+          <div class="rp-step" id="rpStep3">
+            <span class="rp-num">3</span>
+            <span class="rp-label">마무리 인사</span>
+          </div>
+        </div>
+
+        <!-- 대화 스레드 (이전 라운드 누적 기록) -->
+        <div id="conversationThread" class="conversation-thread hidden"></div>
 
         <!-- 훈련 그리드: 녹음 + 탑승상황 나란히 -->
         <div class="training-grid">
@@ -204,6 +224,18 @@
               <div id="cfExpressionList" class="ef-list"></div>
             </div>
           </div>
+        </div>
+
+        <!-- 다음 응대 / 평가 받기 -->
+        <div id="continueBar" class="continue-bar hidden">
+          <button id="continueBtn" class="btn btn-continue">
+            <span class="btn-icon">💬</span>
+            <span id="continueBtnText">다음 응대하기</span>
+          </button>
+          <button id="evaluateBtn" class="btn btn-evaluate">
+            <span class="btn-icon">📋</span>
+            평가 받기
+          </button>
         </div>
 
         <!-- 교관 평가 / 학습 정리 -->

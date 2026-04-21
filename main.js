@@ -78,26 +78,49 @@ const passengers = {
     gradeNote: 'AAIP — 모기업 계열사(제주항공) 대표이사',
     persona: '당신은 제주항공 대표이사 김이배입니다. 자사 서비스를 직접 경험하는 입장으로, 자연스럽고 프로페셔널한 응대에 만족합니다. 동료를 대하듯 짧고 자연스럽게 반응하십시오.'
   },
-  5: {
-    grade: 'JIP', gradeClass: 'jip', avatar: '👩‍✈️',
-    initial: '장', avatarGrad: 'linear-gradient(135deg,#065F46,#059669)', avatarIcon: '👩‍✈️',
-    name: '장주녀 본부장', sub: '제주항공 객실본부장 · JIP',
-    details: ['제주항공 객실본부장', '임원 탑승', '좌석 3A'],
-    boardingCount: 1, boardingType: '임원 탑승', seat: '3A',
-    boardingNote: '직속 상급자 — 자연스럽게 프로페셔널하게',
-    situation: '제주항공 객실본부장 장주녀 님이 탑승하셨습니다. 객실 서비스를 총괄하는 임원으로서 사무장의 응대를 직접 경험하십니다. 동료 임원으로서 자연스럽고 프로페셔널하게 응대하되 JIP 규정을 정확히 준수합니다.',
-    hints: [
-      '호칭: "장주녀 본부장님" 또는 "본부장님"으로 정확하게 호칭합니다.',
-      '비행 정보 + 날씨 포함: 규정대로 비행시간과 목적지 날씨를 안내드립니다.',
-      '객실 서비스 전문가 앞에서 정확하고 자연스러운 Greeting이 특히 중요합니다.',
-      '지나치게 경직되거나 과도하게 예우하면 오히려 어색 — 침착하게 응대합니다.',
-      '동료 임원이지만 JIP 규정을 정확히 준수하는 것이 곧 전문성 표현입니다.',
-      '하기 시: "수고하셨습니다, 본부장님"으로 자연스럽게 인사드립니다.'
-    ],
-    gradeNote: 'JIP — 제주항공 임원 및 가족',
-    persona: '당신은 제주항공 객실본부장 장주녀입니다. 객실 서비스 전반을 총괄하는 임원으로서, 사무장의 Greeting을 전문가 시각으로 경험합니다. 규정을 잘 준수하는 자연스러운 응대에 만족하며, 따뜻하게 반응하십시오.'
-  }
 };
+
+// ─── Round Configs ────────────────────────────────────────────────────────────
+const MAX_ROUNDS = 3;
+const roundConfigs = [
+  {
+    label: '탑승 인사',
+    guide: '마이크 버튼을 눌러 탑승 Greeting을 시작하세요',
+    badgeText: '탑승 상황',
+    getSituation: p => p.situation,
+    getHints: p => p.hints,
+  },
+  {
+    label: '서비스 안내',
+    guide: '비행 중 서비스를 안내해주세요',
+    badgeText: '비행 중 상황',
+    getSituation: p => `비행 중 ${p.grade} 등급 ${p.name}께 기내 서비스를 안내드릴 시간입니다. 음료·스낵 등 제공 가능한 서비스를 자연스럽게 안내하고, 필요한 것이 있으신지 여쭤보세요.`,
+    getHints: p => {
+      const title = { VIP:'대통령님', CIP:'대표님', AIP:'회장님', AAIP:'대표님', JIP:'본부장님' }[p.grade] || '승객님';
+      return [
+        `호칭: "${title}"으로 정확하게 호칭합니다.`,
+        '음료·스낵 등 서비스 내용을 간결하게 안내합니다.',
+        '필요한 것이 있으신지 자연스럽게 여쭤보세요.',
+        '"필요하신 것 있으시면 언제든 말씀해주세요"로 마무리하세요.',
+      ];
+    },
+  },
+  {
+    label: '마무리 인사',
+    guide: '하기 전 마무리 인사를 해주세요',
+    badgeText: '하기 상황',
+    getSituation: p => `곧 착륙합니다. ${p.grade} 등급 ${p.name}께 하기 인사를 드릴 시간입니다. 다음 일정을 배려하는 따뜻하고 간결한 마무리 인사를 해주세요.`,
+    getHints: p => {
+      const title = { VIP:'대통령님', CIP:'대표님', AIP:'회장님', AAIP:'대표님', JIP:'본부장님' }[p.grade] || '승객님';
+      return [
+        `호칭: "${title}"으로 마무리 인사를 해주세요.`,
+        '승객의 다음 목적지나 일정을 고려한 배려의 말을 건네세요.',
+        '"즐거운 일정 되시길 바랍니다" / "안녕히 가십시오"로 정중히 마무리합니다.',
+        '짧고 간결하게 — 하기 길목을 방해하지 않도록 합니다.',
+      ];
+    },
+  },
+];
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let currentPassenger = null;
@@ -105,6 +128,8 @@ let recognition = null;
 let isRecording = false;
 let finalTranscript = '';
 let interimTranscript = '';
+let conversationRound = 1;
+let conversationLog = [];
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -160,6 +185,13 @@ const submitBtn = $('submitBtn');
 const resetBtn  = $('resetBtn');
 const errorBox  = $('errorBox');
 const errorText = $('errorText');
+
+const roundProgress      = $('roundProgress');
+const conversationThread = $('conversationThread');
+const continueBar        = $('continueBar');
+const continueBtn        = $('continueBtn');
+const continueBtnText    = $('continueBtnText');
+const evaluateBtn        = $('evaluateBtn');
 
 // ─── API Key Management ───────────────────────────────────────────────────────
 function loadApiKey() {
@@ -263,13 +295,14 @@ function renderPassenger(p) {
   if (p.boardingCount > 10) icons += `<span class="bs-person-more">+${p.boardingCount - 10}명</span>`;
   iconsEl.innerHTML = p.boardingCount > 1 ? icons : '';
 
-  // 탑승 상황 + 힌트
-  $('situationText').textContent = p.situation;
-  $('hintList').innerHTML = p.hints.map(h => `<li>${h}</li>`).join('');
+  // 탑승 상황 + 힌트 (updateRoundUI에서 처리)
   const hintGrade = $('hintGradeTag');
   hintGrade.textContent = p.grade;
   hintGrade.className = 'hint-grade-tag ' + p.gradeClass;
   $('hintGradeNote').textContent = p.gradeNote;
+
+  roundProgress.classList.remove('hidden');
+  updateRoundUI(1);
 }
 
 // ─── Speech Recognition ───────────────────────────────────────────────────────
@@ -429,7 +462,7 @@ submitBtn.addEventListener('click', async () => {
     }
 
     // 대화 중 피드백 (Greeting 포인트 요약 + 표현 분석)
-    cfHintList.innerHTML = (currentPassenger.hints || []).slice(0, 3).map(h =>
+    cfHintList.innerHTML = roundConfigs[conversationRound - 1].getHints(currentPassenger).slice(0, 3).map(h =>
       `<li>${h}</li>`
     ).join('');
 
@@ -445,47 +478,21 @@ submitBtn.addEventListener('click', async () => {
     }
     conversationFeedback.classList.remove('hidden');
 
-    // 점수
-    const pct = Math.min(100, Math.max(0, result.score));
-    scoreChip.textContent = result.score + '점';
-    scoreChip.className = 'score-chip' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
+    // 대화 로그에 저장 + 스레드에 추가
+    conversationLog.push({ round: conversationRound, label: roundConfigs[conversationRound - 1].label, greeting, result });
+    appendToConversationThread(greeting, result, conversationRound);
 
-    scoreBarFill.style.width = '0%';
-    setTimeout(() => { scoreBarFill.style.width = pct + '%'; }, 50);
-    scoreBarFill.className = 'score-bar-fill' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
-
-    // 교관 코멘트
-    feedbackText.textContent = result.instructorComment || result.feedback;
-
-    // 잘한 점
-    strengthsList.innerHTML = (result.strengths || []).map(s =>
-      `<div class="ls-item ls-good-item">${s}</div>`
-    ).join('') || '<div class="ls-item ls-empty">계속 연습해보아요!</div>';
-
-    // 개선 포인트 (주요 1개)
-    if (result.improvement) {
-      improvementText.textContent = result.improvement;
-      improvementBox.classList.remove('hidden');
+    // 마지막 라운드면 바로 평가 표시, 아니면 계속 버튼
+    if (conversationRound >= MAX_ROUNDS) {
+      continueBtn.classList.add('hidden');
+      continueBar.classList.remove('hidden');
+      showEvaluation(result, greeting);
     } else {
-      improvementBox.classList.add('hidden');
+      continueBtn.classList.remove('hidden');
+      continueBtnText.textContent = roundConfigs[conversationRound].label + ' 하기';
+      continueBar.classList.remove('hidden');
+      setStatus('responded', '승객 응답 완료');
     }
-
-    // JJEMS 규정 체크리스트 (API 결과에 없을 경우 greeting 텍스트로 추론)
-    const gl = greeting.toLowerCase();
-    const flightOk = result.hasFlightInfo ?? /분|시간|소요|편/.test(gl);
-    const weatherOk = result.hasWeatherInfo ?? /날씨|기온|도|맑|흐|비|눈/.test(gl);
-    const titleOk = result.hasTitleCorrect ?? true;
-
-    const regChecks = [];
-    if (!flightOk) regChecks.push('비행 소요시간 안내 포함하기');
-    if (!weatherOk) regChecks.push('목적지 날씨 정보 안내하기');
-    if (!titleOk) regChecks.push('정확한 호칭 사용하기');
-    regulationCheckList.innerHTML = regChecks.map(c =>
-      `<div class="ls-item ls-check-item">${c}</div>`
-    ).join('');
-
-    resultArea.classList.remove('hidden');
-    setStatus('done', '평가 완료');
   } catch (err) {
     loadingResponse.classList.add('hidden');
     showError(err.message || '오류가 발생했습니다. 다시 시도해주세요.');
@@ -493,6 +500,44 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = false;
   } finally {
     recordBtn.disabled = false;
+  }
+});
+
+// ─── Continue / Evaluate ──────────────────────────────────────────────────────
+continueBtn.addEventListener('click', () => {
+  conversationRound++;
+  updateRoundUI(conversationRound);
+
+  finalTranscript = '';
+  interimTranscript = '';
+  transcriptResult.classList.add('hidden');
+  transcriptFinal.textContent = '';
+  transcriptEditArea.classList.add('hidden');
+  confirmEditBtn.classList.add('hidden');
+  editTranscriptBtn.style.display = '';
+
+  passengerResponseCard.classList.add('hidden');
+  conversationFeedback.classList.add('hidden');
+  continueBar.classList.add('hidden');
+  resultArea.classList.add('hidden');
+
+  recordBtnText.textContent = '녹음 시작';
+  recordBtn.classList.remove('active');
+  recordBtn.disabled = false;
+  submitBtn.disabled = true;
+
+  const ttsBtn = document.getElementById('ttsBtn');
+  if (ttsBtn) ttsBtn.classList.add('hidden');
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  setStatus('waiting', '대기 중');
+  hideError();
+});
+
+evaluateBtn.addEventListener('click', () => {
+  if (conversationLog.length > 0) {
+    const last = conversationLog[conversationLog.length - 1];
+    showEvaluation(last.result, last.greeting);
   }
 });
 
@@ -514,6 +559,8 @@ function resetTrainingState() {
   isRecording = false;
   finalTranscript = '';
   interimTranscript = '';
+  conversationRound = 1;
+  conversationLog = [];
 
   recordBtn.classList.remove('active');
   recordBtn.disabled = false;
@@ -533,7 +580,12 @@ function resetTrainingState() {
   loadingResponse.classList.add('hidden');
   passengerResponseCard.classList.add('hidden');
   conversationFeedback.classList.add('hidden');
+  continueBar.classList.add('hidden');
+  continueBtn.classList.remove('hidden');
   resultArea.classList.add('hidden');
+  roundProgress.classList.add('hidden');
+  conversationThread.classList.add('hidden');
+  conversationThread.innerHTML = '';
   if (regulationCheckList) regulationCheckList.innerHTML = '';
 
   const ttsBtn = document.getElementById('ttsBtn');
@@ -543,6 +595,91 @@ function resetTrainingState() {
   submitBtn.disabled = true;
   hideError();
   setStatus('waiting', '대기 중');
+}
+
+// ─── Round UI ─────────────────────────────────────────────────────────────────
+function updateRoundUI(round) {
+  if (!currentPassenger) return;
+  const cfg = roundConfigs[round - 1];
+
+  const badge = document.querySelector('#situationCard .situation-badge');
+  if (badge) badge.textContent = cfg.badgeText;
+  $('situationText').textContent = cfg.getSituation(currentPassenger);
+  $('hintList').innerHTML = cfg.getHints(currentPassenger).map(h => `<li>${h}</li>`).join('');
+  $('recordingGuide').textContent = cfg.guide;
+
+  for (let i = 1; i <= MAX_ROUNDS; i++) {
+    const step = $(`rpStep${i}`);
+    if (!step) continue;
+    step.classList.remove('active', 'done');
+    if (i < round) step.classList.add('done');
+    else if (i === round) step.classList.add('active');
+  }
+  document.querySelectorAll('.rp-line').forEach((line, idx) => {
+    line.classList.toggle('done', idx + 1 < round);
+  });
+}
+
+function appendToConversationThread(greeting, result, round) {
+  const cfg = roundConfigs[round - 1];
+  const p = currentPassenger;
+  const scoreClass = result.score >= 88 ? 'score-hi' : result.score >= 70 ? 'score-mid' : 'score-lo';
+
+  const entry = document.createElement('div');
+  entry.className = 'ct-exchange';
+  entry.innerHTML = `
+    <div class="ct-round-label">${round}단계 · ${cfg.label}</div>
+    <div class="ct-my-bubble">
+      <span class="ct-my-icon">👨‍✈️</span>
+      <span class="ct-my-text">${greeting}</span>
+      <span class="ct-score-tag ${scoreClass}">${result.score}점</span>
+    </div>
+    <div class="ct-passenger-bubble">
+      <span class="ct-p-avatar" style="background:${p.avatarGrad}">
+        <span style="font-size:12px;font-weight:900;color:#fff;">${p.initial}</span>
+      </span>
+      <span class="ct-p-text">${result.passengerResponse}</span>
+    </div>
+  `;
+  conversationThread.appendChild(entry);
+  conversationThread.classList.remove('hidden');
+}
+
+function showEvaluation(result, greeting) {
+  const pct = Math.min(100, Math.max(0, result.score));
+  scoreChip.textContent = result.score + '점';
+  scoreChip.className = 'score-chip' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
+  scoreBarFill.style.width = '0%';
+  setTimeout(() => { scoreBarFill.style.width = pct + '%'; }, 50);
+  scoreBarFill.className = 'score-bar-fill' + (pct >= 90 ? ' high' : pct >= 75 ? ' mid' : ' low');
+
+  feedbackText.textContent = result.instructorComment || result.feedback;
+
+  strengthsList.innerHTML = (result.strengths || []).map(s =>
+    `<div class="ls-item ls-good-item">${s}</div>`
+  ).join('') || '<div class="ls-item ls-empty">계속 연습해보아요!</div>';
+
+  if (result.improvement) {
+    improvementText.textContent = result.improvement;
+    improvementBox.classList.remove('hidden');
+  } else {
+    improvementBox.classList.add('hidden');
+  }
+
+  const gl = (greeting || '').toLowerCase();
+  const flightOk = result.hasFlightInfo ?? /분|시간|소요|편/.test(gl);
+  const weatherOk = result.hasWeatherInfo ?? /날씨|기온|도|맑|흐|비|눈/.test(gl);
+  const titleOk = result.hasTitleCorrect ?? true;
+  const regChecks = [];
+  if (!flightOk) regChecks.push('비행 소요시간 안내 포함하기');
+  if (!weatherOk) regChecks.push('목적지 날씨 정보 안내하기');
+  if (!titleOk) regChecks.push('정확한 호칭 사용하기');
+  regulationCheckList.innerHTML = regChecks.map(c =>
+    `<div class="ls-item ls-check-item">${c}</div>`
+  ).join('');
+
+  resultArea.classList.remove('hidden');
+  setStatus('done', '평가 완료');
 }
 
 // ─── Status ───────────────────────────────────────────────────────────────────
@@ -562,17 +699,21 @@ function hideError() {
 
 // ─── Claude API ───────────────────────────────────────────────────────────────
 function buildSystemPrompt(passenger) {
+  const cfg = roundConfigs[conversationRound - 1];
+  const situation = cfg.getSituation(passenger);
   return `당신은 제주항공의 15년 경력 객실서비스교관 박지현 수석교관입니다. 전직 국제선 객실사무장 출신으로, JJEMS 서비스 시스템을 직접 설계한 전문가입니다.
 
 당신은 두 가지 역할을 동시에 수행합니다.
 
 [역할 1: 승객]
 ${passenger.persona}
-객실사무장의 인사말을 듣고 승객으로서 자연스럽고 짧게 반응하십시오 (1~3문장).
+현재 상황: ${situation}
+객실사무장의 응대를 듣고 승객으로서 자연스럽고 짧게 반응하십시오 (1~3문장).
 
 [역할 2: 박지현 교관의 평가]
 따뜻하고 격려적인 멘토 스타일로 교육합니다. 항상 "사무장님"이라고 부르며, 잘한 점을 먼저 칭찬하고 개선점을 부드럽게 제안합니다. 전문적이지만 다정한 어조를 유지하세요.
 
+현재 훈련 단계: ${cfg.label} (${conversationRound}/${MAX_ROUNDS})
 승객 등급: ${passenger.grade} (${passenger.name})
 평가 기준:
 - 직함·호칭의 정확성
@@ -582,7 +723,7 @@ ${passenger.persona}
 - JJEMS 서비스 기준 부합 여부
 - 표현의 구체성과 적절성
 
-승객 반응: JJEMS 인사는 절대 호칭 오류를 지적하거나 서비스 평가를 하지 않습니다. 인사 내용에 따라 자연스럽게 반응하되 온도 차이만 표현합니다.
+승객 반응: JJEMS 응대는 절대 호칭 오류를 지적하거나 서비스 평가를 하지 않습니다. 응대 내용에 따라 자연스럽게 반응하되 온도 차이만 표현합니다.
 
 반드시 아래 JSON 형식으로만 응답하십시오 (다른 텍스트 없음):
 {
@@ -615,7 +756,13 @@ async function callClaudeAPI(passenger, greeting) {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 900,
       system: buildSystemPrompt(passenger),
-      messages: [{ role: 'user', content: `객실사무장의 인사말: "${greeting}"` }]
+      messages: [
+        ...conversationLog.map(entry => ([
+          { role: 'user', content: `[${entry.label}] 객실사무장의 응대: "${entry.greeting}"` },
+          { role: 'assistant', content: JSON.stringify(entry.result) }
+        ])).flat(),
+        { role: 'user', content: `[${roundConfigs[conversationRound - 1].label}] 객실사무장의 응대: "${greeting}"` }
+      ]
     })
   });
 
@@ -718,25 +865,6 @@ const demoData = {
     excellentReaction: [
       '잘 했어요, 사무장님. 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 잘 부탁드립니다.',
       'JJEMS 규정대로 간결하면서도 필요한 정보를 정확히 전달해주셨어요. 감사합니다.',
-    ],
-  },
-  5: { // JIP · 장주녀 객실본부장
-    correctTitles: ['장주녀', '본부장님', '본부장'],
-    briefReaction: [
-      '(고개를 끄덕이며) 네, 수고해요.',
-      '알겠어요.',
-    ],
-    okReaction: [
-      '감사해요, 사무장님. 잘 부탁드려요.',
-      '수고하세요.',
-    ],
-    goodReaction: [
-      '잘 하셨어요. 비행 정보까지 챙겨주시니 좋네요. 잘 부탁드립니다.',
-      '감사해요. 날씨 정보도 포함해주셨군요. 편안한 비행 되겠어요.',
-    ],
-    excellentReaction: [
-      '훌륭합니다, 사무장님. 호칭도 정확하고 비행 정보와 날씨까지 자연스럽게 담아주셨어요. 수고하세요.',
-      '정말 잘 하셨어요. JJEMS 규정을 자연스럽게 녹인 Greeting이었습니다. 앞으로도 이렇게 해주세요.',
     ],
   },
 };
